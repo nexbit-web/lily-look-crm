@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  OWNER     // Владелец — полный доступ
+  ADMIN     // Админ — управление сотрудниками и заказами
+  MANAGER   // Менеджер — заказы, клиенты, товары
+  EMPLOYEE  // Сотрудник — базовые действия
+  INTERN    // Стажёр — только просмотр / обучение
+}
+
+// Сотрудники системы
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  avatarUrl String?
+  role      Role     @default(MANAGER)
+
+  ordersCount Int   @default(0) // Кол-во заказов
+  totalSales  Float @default(0) // Сумма продаж
+  returns     Int   @default(0) // Возвраты
+  rating      Float @default(0) // Эффективность
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+  logs   ActivityLog[]
+}
+
+// Клиенты магазина
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?  @unique
+  phone     String?  @unique
+  notes     String?
+  avatarUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+}
+
+// Категории одежды
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  products Product[]
+}
+
+// Товары
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  sku         String   @unique
+  stock       Int      @default(0)
+  isActive    Boolean  @default(true)
+
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  variants   ProductVariant[]
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Размеры и цвета товара
+model ProductVariant {
+  id        String  @id @default(cuid())
+  size      String
+  color     String
+  stock     Int     @default(0)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+// Заказы клиентов
+model Order {
+  id         String      @id @default(cuid())
+  status     OrderStatus @default(NEW)
+  total      Float       @default(0)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  managerId  String?
+  manager    User? @relation(fields: [managerId], references: [id])
+
+  items    OrderItem[]
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum OrderStatus {
+  NEW
+  CONFIRMED
+  SHIPPED
+  COMPLETED
+  CANCELED
+  RETURNED
+}
+
+// Позиции внутри заказа
+model OrderItem {
+  id       String @id @default(cuid())
+  quantity Int
+  price    Float
+
+  orderId String
+  order   Order @relation(fields: [orderId], references: [id])
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+// Платежи по заказам
+model Payment {
+  id      String @id @default(cuid())
+  amount  Float
+  orderId String
+  order   Order @relation(fields: [orderId], references: [id])
+}
+
+// Логи действий сотрудников
+model ActivityLog {
+  id       String @id @default(cuid())
+  action   String
+  entity   String
+  entityId String
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+// Расходы магазина
+model Expense {
+  id     String @id @default(cuid())
+  title  String
+  amount Float
+}
