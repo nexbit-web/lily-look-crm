@@ -7,36 +7,105 @@ datasource db {
   provider = "postgresql"
 }
 
+// npx prisma migrate dev --name init
+
+// Моделі для користувачів та авторизації в CRM
 enum Role {
-  OWNER     // Владелец — полный доступ
-  ADMIN     // Админ — управление сотрудниками и заказами
-  MANAGER   // Менеджер — заказы, клиенты, товары
-  EMPLOYEE  // Сотрудник — базовые действия
-  INTERN    // Стажёр — только просмотр / обучение
+  OWNER
+  ADMIN
+  MANAGER
+  EMPLOYEE
+  INTERN
 }
 
-// Сотрудники системы
+enum OrderStatus {
+  NEW
+  CONFIRMED
+  SHIPPED
+  COMPLETED
+  CANCELED
+  RETURNED
+}
+
 model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  name          String
+  password      String?
+  image         String?
+  avatarUrl     String?
+  role          Role      @default(MANAGER)
+  ordersCount   Int       @default(0)
+  totalSales    Float     @default(0)
+  returns       Int       @default(0)
+  rating        Float     @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions  Session[]
+  accounts  Account[]
+  orders    Order[]        // ← обратная связь для Order.manager
+  logs      ActivityLog[]  // ← обратная связь для ActivityLog.user
+
+  @@map("user")
+}
+
+model Session {
   id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String
-  avatarUrl String?
-  role      Role     @default(MANAGER)
-
-  ordersCount Int   @default(0) // Кол-во заказов
-  totalSales  Float @default(0) // Сумма продаж
-  returns     Int   @default(0) // Возвраты
-  rating      Float @default(0) // Эффективность
-
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  orders Order[]
-  logs   ActivityLog[]
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
 }
 
-// Клиенты магазина
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  ip        String
+  createdAt DateTime @default(now())
+
+  @@index([ip, createdAt])
+  @@map("login_attempt")
+}
+
 model Customer {
   id        String   @id @default(cuid())
   name      String
@@ -51,7 +120,6 @@ model Customer {
   orders Order[]
 }
 
-// Категории одежды
 model Category {
   id       String    @id @default(cuid())
   name     String
@@ -59,7 +127,6 @@ model Category {
   products Product[]
 }
 
-// Товары
 model Product {
   id          String   @id @default(cuid())
   name        String
@@ -67,6 +134,7 @@ model Product {
   price       Float
   sku         String   @unique
   stock       Int      @default(0)
+  imageUrl    String?
   isActive    Boolean  @default(true)
 
   categoryId  String
@@ -79,7 +147,6 @@ model Product {
   updatedAt DateTime @updatedAt
 }
 
-// Размеры и цвета товара
 model ProductVariant {
   id        String  @id @default(cuid())
   size      String
@@ -90,7 +157,6 @@ model ProductVariant {
   product   Product @relation(fields: [productId], references: [id])
 }
 
-// Заказы клиентов
 model Order {
   id         String      @id @default(cuid())
   status     OrderStatus @default(NEW)
@@ -109,29 +175,18 @@ model Order {
   updatedAt DateTime @updatedAt
 }
 
-enum OrderStatus {
-  NEW
-  CONFIRMED
-  SHIPPED
-  COMPLETED
-  CANCELED
-  RETURNED
-}
-
-// Позиции внутри заказа
 model OrderItem {
-  id       String @id @default(cuid())
-  quantity Int
-  price    Float
+  id        String  @id @default(cuid())
+  quantity  Int
+  price     Float
 
-  orderId String
-  order   Order @relation(fields: [orderId], references: [id])
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
 
   productId String
   product   Product @relation(fields: [productId], references: [id])
 }
 
-// Платежи по заказам
 model Payment {
   id      String @id @default(cuid())
   amount  Float
@@ -139,7 +194,6 @@ model Payment {
   order   Order @relation(fields: [orderId], references: [id])
 }
 
-// Логи действий сотрудников
 model ActivityLog {
   id       String @id @default(cuid())
   action   String
@@ -152,9 +206,11 @@ model ActivityLog {
   createdAt DateTime @default(now())
 }
 
-// Расходы магазина
 model Expense {
   id     String @id @default(cuid())
   title  String
   amount Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
