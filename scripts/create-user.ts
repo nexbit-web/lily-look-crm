@@ -4,12 +4,23 @@ import { hashPassword } from "../node_modules/better-auth/dist/crypto/index.mjs"
 
 // npx tsx scripts/create-user.ts
 
+// OWNER
+// ADMIN
+// MANAGER
+// EMPLOYEE
+// INTERN
+
 async function main() {
-  const email = "admin@ladylook.com";
-  const name = "Микита";
-  const password = "N7@pQkR9#mL2$x4&wT6!vZ8";
-  const role = "ADMIN";
-  const avatarUrl = "/user156.jpg";
+  const email = "vikatrikulic6@gmail.com";
+  const name = "Вікторія";
+  const password = "N8r$7vGq!pL2xZfA";
+  const role = "MANAGER";
+  const avatarUrl = "/user15643.jpg";
+  // const email = "admin@ladylook.com";
+  // const name = "Микита";
+  // const password = "N7@pQkR9#mL2$x4&wT6!vZ8";
+  // const role = "ADMIN";
+  // const avatarUrl = "/user156.jpg";
 
   // Удаляем старого если есть
   const existing = await prisma.user.findUnique({ where: { email } });
