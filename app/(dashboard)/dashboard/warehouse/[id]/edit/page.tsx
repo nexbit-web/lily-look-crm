@@ -197,7 +197,7 @@ export default function EditProductPage() {
       {/* Заголовок */}
       <div className="flex items-center gap-3 mb-6">
         <button
-          onClick={() => router.push("/admin/products")}
+          onClick={() => router.push("/dashboard/warehouse")}
           className="text-gray-500 hover:text-gray-800 transition"
         >
           <ArrowLeft size={20} />

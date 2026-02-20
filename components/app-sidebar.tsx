@@ -47,31 +47,31 @@ const navItems = [
     title: "Замовлення",
     url: "#",
     icon: ShoppingCart,
-    roles: ["OWNER", "ADMIN", "MANAGER"],
+    roles: ["ADMIN"],
   },
   {
     title: "Товари",
     url: "/dashboard/warehouse",
     icon: PackageOpen,
-    roles: ["OWNER", "ADMIN"],
+    roles: ["MANAGER", "ADMIN"],
   },
   {
     title: "Працівники",
     url: "#",
     icon: IdCardLanyard,
-    roles: ["OWNER", "ADMIN"],
+    roles: ["ADMIN"],
   },
   {
     title: "Аналітика",
     url: "#",
     icon: ChartSpline,
-    roles: ["OWNER", "ADMIN", "MANAGER"],
+    roles: ["ADMIN"],
   },
   {
     title: "Витрати",
     url: "#",
     icon: BanknoteArrowDown,
-    roles: ["OWNER", "ADMIN"],
+    roles: ["ADMIN"],
   },
   {
     title: "Адмін",
@@ -83,7 +83,7 @@ const navItems = [
     title: "Налаштування",
     url: "#",
     icon: Cog,
-    roles: ["OWNER", "ADMIN"],
+    roles: ["ADMIN"],
   },
 ];
 

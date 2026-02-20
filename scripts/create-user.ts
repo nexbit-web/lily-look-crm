@@ -11,7 +11,7 @@ import { hashPassword } from "../node_modules/better-auth/dist/crypto/index.mjs"
 // INTERN
 
 async function main() {
-  const email = "vikatrikulic6@gmail.com";
+  const email = "victoria@lilylook.com";
   const name = "Вікторія";
   const password = "N8r$7vGq!pL2xZfA";
   const role = "MANAGER";
