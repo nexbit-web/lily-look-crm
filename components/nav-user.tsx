@@ -31,6 +31,7 @@ import { useState } from "react";
 import type { Role } from "@/hooks/use-role";
 import { ROLE_LABELS } from "@/hooks/use-role";
 import { RoleGate } from "./Role-gate";
+import toast from "react-hot-toast";
 type NavUserProps = {
   name: string;
   email: string;
@@ -52,9 +53,24 @@ export function NavUser({ user }: { user: NavUserProps }) {
 
   async function handleSignOut() {
     setLoading(true);
-    await signOut();
-    router.push("/login");
-    router.refresh();
+
+    const logoutPromise = signOut();
+
+    toast.promise(logoutPromise, {
+      loading: "Вихід...",
+      success: "Ви успішно вийшли",
+      error: "Не вдалося вийти",
+    });
+
+    try {
+      await logoutPromise;
+      router.push("/login");
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -120,12 +136,11 @@ export function NavUser({ user }: { user: NavUserProps }) {
                 <CreditCard />
                 Billing
               </DropdownMenuItem>
-              <RoleGate allowed={["OWNER", "ADMIN"]}>
-                <DropdownMenuItem>
-                  <Bell />
-                  Notifications
-                </DropdownMenuItem>
-              </RoleGate>
+
+              <DropdownMenuItem>
+                <Bell />
+                Notifications
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem

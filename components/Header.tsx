@@ -22,7 +22,7 @@ export const Header: React.FC<Props> = ({ className }) => {
   const pageTitles: Record<string, string> = {
     "/dashboard": "Dashboard",
     "/dashboard/stats": "Статистика",
-    "/dashboard/cities": "Міста",
+    "/dashboard/warehouse": "Склад",
     "/dashboard/ads": "Реклама",
     "/dashboard/admins": "Адміністратор",
     "/dashboard/announcements": "Оголошення",

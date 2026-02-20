@@ -11,6 +11,7 @@ import {
   LifeBuoy,
   PackageOpen,
   Send,
+  ShieldUser,
   ShoppingCart,
 } from "lucide-react";
 
@@ -50,7 +51,7 @@ const navItems = [
   },
   {
     title: "Товари",
-    url: "#",
+    url: "/dashboard/warehouse",
     icon: PackageOpen,
     roles: ["OWNER", "ADMIN"],
   },
@@ -71,6 +72,12 @@ const navItems = [
     url: "#",
     icon: BanknoteArrowDown,
     roles: ["OWNER", "ADMIN"],
+  },
+  {
+    title: "Адмін",
+    url: "/dashboard/admin",
+    icon: ShieldUser,
+    roles: ["ADMIN"],
   },
   {
     title: "Налаштування",

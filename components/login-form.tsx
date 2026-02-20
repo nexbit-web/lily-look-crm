@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { signIn } from "@/lib/auth-client";
+import { Spinner } from "./ui/spinner";
 
 const schema = z.object({
   email: z.string().email("Неверный email"),
@@ -68,9 +69,6 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">Вхід у ваш акаунт</h1>
-          <p className="text-muted-foreground text-sm text-balance">
-            Введіть ваш email та пароль нижче, щоб увійти у акаунт
-          </p>
         </div>
 
         <Field>
@@ -112,6 +110,7 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
 
         <Field>
           <Button type="submit" className="w-full" disabled={loading}>
+            {loading && <Spinner className="h-5 w-5" />}
             {loading ? "Вхід..." : "Увійти"}
           </Button>
         </Field>

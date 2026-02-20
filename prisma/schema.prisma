@@ -154,7 +154,7 @@ model ProductVariant {
   stock     Int     @default(0)
 
   productId String
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Order {
