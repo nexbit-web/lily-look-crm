@@ -222,7 +222,7 @@ export default function ProductsTable() {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               />
             </PaginationItem>
-            <span className="px-3 text-sm">
+            <span className="flex px-3 text-sm">
               {page} / {totalPages || 1}
             </span>
             <PaginationItem>

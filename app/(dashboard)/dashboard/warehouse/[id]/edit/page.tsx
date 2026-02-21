@@ -334,6 +334,7 @@ export default function EditProductPage() {
             Скасувати
           </Button>
           <Button className="flex-1" onClick={handleSubmit} disabled={saving}>
+            {saving && <Spinner className="h-5 w-5" />}
             {saving ? "Збереження..." : "Зберегти"}
           </Button>
         </div>

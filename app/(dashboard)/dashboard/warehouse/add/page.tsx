@@ -12,8 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@/components/ui/field";
 import { toast } from "react-hot-toast";
-import { Plus, Trash, ArrowLeft } from "lucide-react";
+import { Plus, Trash, ArrowLeft, RefreshCcw } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 
 type Category = {
@@ -147,158 +154,206 @@ export default function AddProductPage() {
       setIsSubmitting(false);
     }
   };
+  // генерація Артикул (SKU)
+  const generateSKU = () => {
+    const randomNumber = Math.floor(100000 + Math.random() * 900000).toString();
+
+    setProduct((prev) => ({
+      ...prev,
+      article: randomNumber,
+    }));
+  };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
+    <div className="max-w-2xl mx-auto p-6">
       {/* Заголовок */}
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => router.push("/dashboard/warehouse")}
-          className="text-gray-500 hover:text-gray-800 transition"
+          className=" hover:text-gray-500 transition cursor-pointer"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={25} />
         </button>
-        <h1 className="text-2xl font-bold">Додати продукт</h1>
+        <h1 className="text-2xl font-bold">Додати товар</h1>
       </div>
 
-      <div className="flex flex-col gap-3">
-        <Input
-          name="name"
-          placeholder="Назва"
-          value={product.name}
-          onChange={handleChange}
-        />
-        <Input
-          name="article"
-          placeholder="Артикул (SKU)"
-          value={product.article}
-          onChange={handleChange}
-        />
-        <Input
-          name="description"
-          placeholder="Опис"
-          value={product.description}
-          onChange={handleChange}
-        />
-        <Input
-          name="price"
-          placeholder="Ціна"
-          type="number"
-          value={product.price}
-          onChange={handleChange}
-        />
-        <Input
-          name="stock"
-          placeholder="Кількість"
-          type="number"
-          value={product.stock}
-          onChange={handleChange}
-        />
-        <Input
-          name="imageUrl"
-          placeholder="URL зображення"
-          value={product.imageUrl}
-          onChange={handleChange}
-        />
-
-        {/* Категория */}
-        <Select
-          value={product.categoryId}
-          onValueChange={(v) => setProduct({ ...product, categoryId: v })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Оберіть категорію" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {categories.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-
-        {/* Статус */}
-        <Select
-          value={product.isActive ? "true" : "false"}
-          onValueChange={(v) =>
-            setProduct({ ...product, isActive: v === "true" })
-          }
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="true">Активний</SelectItem>
-            <SelectItem value="false">Неактивний</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Варианты */}
-        <div>
-          <p className="text-sm font-medium mb-2">
-            Варіанти (Розмір / Колір / Кількість)
-          </p>
-          <div className="flex flex-col gap-2">
-            {product.variants.map((v, i) => (
-              <div key={i} className="flex gap-2 items-center">
+      <FieldSet className="flex flex-col gap-3">
+        <FieldGroup>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field>
+              <FieldLabel htmlFor="street">Назва</FieldLabel>
+              <Input
+                name="name"
+                placeholder="Назва"
+                value={product.name}
+                onChange={handleChange}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="zip">Артикул</FieldLabel>
+              <div className="flex gap-2">
                 <Input
-                  placeholder="Розмір"
-                  value={v.size}
-                  onChange={(e) => updateVariant(i, "size", e.target.value)}
+                  name="article"
+                  placeholder="Артикул (SKU)"
+                  value={product.article}
+                  onChange={handleChange}
                 />
-                <Input
-                  placeholder="Колір"
-                  value={v.color}
-                  onChange={(e) => updateVariant(i, "color", e.target.value)}
-                />
-                <Input
-                  placeholder="Кількість"
-                  type="number"
-                  value={v.stock}
-                  onChange={(e) => updateVariant(i, "stock", e.target.value)}
-                />
-                <Trash
-                  size={18}
-                  onClick={() => removeVariant(i)}
-                  className="cursor-pointer text-red-500 shrink-0"
-                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={generateSKU}
+                  className="shrink-0 cursor-pointer"
+                >
+                  <RefreshCcw />
+                </Button>
               </div>
-            ))}
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="street">Опис</FieldLabel>
+              <Input
+                name="description"
+                placeholder="Опис"
+                value={product.description}
+                onChange={handleChange}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="street">Ціна</FieldLabel>
+              <Input
+                name="price"
+                placeholder="Ціна"
+                type="number"
+                value={product.price}
+                onChange={handleChange}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="street">Кількість</FieldLabel>
+              <Input
+                name="stock"
+                placeholder="Кількість"
+                type="number"
+                value={product.stock}
+                onChange={handleChange}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="street">Зображення</FieldLabel>
+              <Input
+                name="imageUrl"
+                placeholder="URL зображення"
+                value={product.imageUrl}
+                onChange={handleChange}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="street">Оберіть категорію</FieldLabel>
+              {/* Категория */}
+              <Select
+                value={product.categoryId}
+                onValueChange={(v) => setProduct({ ...product, categoryId: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Оберіть категорію" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="street">Оберіть Статус</FieldLabel>
+              {/* Статус */}
+              <Select
+                value={product.isActive ? "true" : "false"}
+                onValueChange={(v) =>
+                  setProduct({ ...product, isActive: v === "true" })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">Активний</SelectItem>
+                  <SelectItem value="false">Неактивний</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={addVariant}
-            className="mt-2 cursor-pointer"
-          >
-            <Plus className="mr-1 h-4 w-4" />
-            Додати варіант
-          </Button>
-        </div>
 
-        {/* Кнопки */}
-        <div className="flex gap-2 mt-2">
-          <Button
-            variant="outline"
-            className="flex-1 cursor-pointer"
-            onClick={() => router.push("/dashboard/warehouse")}
-            disabled={isSubmitting}
-          >
-            Скасувати
-          </Button>
-          <Button
-            className="flex-1 cursor-pointer"
-            onClick={handleSubmit}
-            disabled={!isValid || isSubmitting}
-          >
-            {isSubmitting && <Spinner className="h-5 w-5" />}
-            {isSubmitting ? "Збереження..." : "Зберегти"}
-          </Button>
-        </div>
-      </div>
+          {/* Варианты */}
+          <div>
+            <p className="text-sm font-medium mb-2">
+              Варіанти (Розмір / Колір / Кількість)
+            </p>
+            <div className="flex flex-col gap-2">
+              {product.variants.map((v, i) => (
+                <div key={i} className="flex gap-2 items-center">
+                  <Input
+                    placeholder="Розмір"
+                    value={v.size}
+                    onChange={(e) => updateVariant(i, "size", e.target.value)}
+                  />
+                  <Input
+                    placeholder="Колір"
+                    value={v.color}
+                    onChange={(e) => updateVariant(i, "color", e.target.value)}
+                  />
+                  <Input
+                    placeholder="Кількість"
+                    type="number"
+                    value={v.stock}
+                    onChange={(e) => updateVariant(i, "stock", e.target.value)}
+                  />
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => removeVariant(i)}
+                    className="cursor-pointer"
+                  >
+                    <Trash className="text-red-500 shrink-0" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={addVariant}
+              className="mt-2 cursor-pointer"
+            >
+              <Plus className="mr-1 h-4 w-4" />
+              Додати варіант
+            </Button>
+          </div>
+          {/* Кнопки */}
+          <div className="flex gap-2 mt-2">
+            <Button
+              variant="outline"
+              className="flex-1 cursor-pointer"
+              onClick={() => router.push("/dashboard/warehouse")}
+              disabled={isSubmitting}
+            >
+              Скасувати
+            </Button>
+            <Button
+              className="flex-1 cursor-pointer"
+              onClick={handleSubmit}
+              disabled={!isValid || isSubmitting}
+            >
+              {isSubmitting && <Spinner className="h-5 w-5" />}
+              {isSubmitting ? "Збереження..." : "Зберегти"}
+            </Button>
+          </div>
+        </FieldGroup>
+      </FieldSet>
     </div>
   );
 }
