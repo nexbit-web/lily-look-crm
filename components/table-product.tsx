@@ -111,7 +111,7 @@ export default function ProductsTable() {
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Продукти ({products.length})</h1>
 
-      <div className="flex items-center justify-between mb-2 gap-2.5">
+      <div className="flex justify-between mb-2 gap-2.5">
         <Input
           placeholder="Пошук за назвою або Артікул..."
           value={search}
@@ -122,13 +122,12 @@ export default function ProductsTable() {
           className="mb-4 max-w-sm"
         />
         <RoleGate allowed={["MANAGER", "ADMIN"]}>
-          {" "}
           <Button
             className="cursor-pointer"
+         
             onClick={() => router.push("/dashboard/warehouse/add")}
           >
             <Plus className="h-4 w-4" />
-            Додати
           </Button>
         </RoleGate>
       </div>
@@ -192,7 +191,7 @@ export default function ProductsTable() {
       {/* PAGINATION */}
       <div className="flex items-center justify-between gap-4 mt-4">
         <Field orientation="horizontal" className="w-fit">
-          <FieldLabel>Рядків на сторінці</FieldLabel>
+          <FieldLabel>Рядків</FieldLabel>
           <Select
             value={String(pageSize)}
             onValueChange={(v) => {

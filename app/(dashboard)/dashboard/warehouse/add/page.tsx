@@ -12,13 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "@/components/ui/field";
+import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { toast } from "react-hot-toast";
 import { Plus, Trash, ArrowLeft, RefreshCcw } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
@@ -165,18 +159,7 @@ export default function AddProductPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      {/* Заголовок */}
-      <div className="flex items-center gap-3 mb-6">
-        <button
-          onClick={() => router.push("/dashboard/warehouse")}
-          className=" hover:text-gray-500 transition cursor-pointer"
-        >
-          <ArrowLeft size={25} />
-        </button>
-        <h1 className="text-2xl font-bold">Додати товар</h1>
-      </div>
-
+    <div className="max-w-2xl mx-auto px-6 pb-4">
       <FieldSet className="flex flex-col gap-3">
         <FieldGroup>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -253,13 +236,13 @@ export default function AddProductPage() {
                 value={product.categoryId}
                 onValueChange={(v) => setProduct({ ...product, categoryId: v })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="cursor-pointer">
                   <SelectValue placeholder="Оберіть категорію" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent >
                   <SelectGroup>
                     {categories.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
+                      <SelectItem className="cursor-pointer" key={c.id} value={c.id}>
                         {c.name}
                       </SelectItem>
                     ))}
@@ -276,12 +259,16 @@ export default function AddProductPage() {
                   setProduct({ ...product, isActive: v === "true" })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="cursor-pointer">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="true">Активний</SelectItem>
-                  <SelectItem value="false">Неактивний</SelectItem>
+                  <SelectItem className="cursor-pointer" value="true">
+                    Активний
+                  </SelectItem>
+                  <SelectItem className="cursor-pointer" value="false">
+                    Неактивний
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </Field>
@@ -289,7 +276,7 @@ export default function AddProductPage() {
 
           {/* Варианты */}
           <div>
-            <p className="text-sm font-medium mb-2">
+            <p className="text-sm font-medium mb-1">
               Варіанти (Розмір / Колір / Кількість)
             </p>
             <div className="flex flex-col gap-2">
@@ -329,12 +316,12 @@ export default function AddProductPage() {
               onClick={addVariant}
               className="mt-2 cursor-pointer"
             >
-              <Plus className="mr-1 h-4 w-4" />
+              <Plus />
               Додати варіант
             </Button>
           </div>
           {/* Кнопки */}
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-2 ">
             <Button
               variant="outline"
               className="flex-1 cursor-pointer"

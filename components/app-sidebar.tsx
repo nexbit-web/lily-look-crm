@@ -9,7 +9,9 @@ import {
   House,
   IdCardLanyard,
   LifeBuoy,
+  Package,
   PackageOpen,
+  PackagePlus,
   Send,
   ShieldUser,
   ShoppingCart,
@@ -52,7 +54,13 @@ const navItems = [
   {
     title: "Товари",
     url: "/dashboard/warehouse",
-    icon: PackageOpen,
+    icon: Package,
+    roles: ["MANAGER", "ADMIN"],
+  },
+  {
+    title: "Додати товари",
+    url: "/dashboard/warehouse/add",
+    icon: PackagePlus,
     roles: ["MANAGER", "ADMIN"],
   },
   {

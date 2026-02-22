@@ -19,16 +19,23 @@ interface Props {
 export const Header: React.FC<Props> = ({ className }) => {
   const pathname = usePathname();
 
-  const pageTitles: Record<string, string> = {
-    "/dashboard": "Dashboard",
-    "/dashboard/stats": "Статистика",
-    "/dashboard/warehouse": "Склад",
-    "/dashboard/ads": "Реклама",
-    "/dashboard/admins": "Адміністратор",
-    "/dashboard/announcements": "Оголошення",
-  };
+  let currentPage = "Dashboard";
 
-  const currentPage = pageTitles[pathname] || "Dashboard";
+  // Простейшие проверки по ключевым словам в пути
+  if (pathname.includes("/dashboard/warehouse/add")) {
+    currentPage = "Додати товари";
+  } else if (pathname.includes("/dashboard/warehouse")) {
+    currentPage = "Товари";
+    if (pathname.endsWith("/edit")) currentPage += " (Редагувати товар)";
+  } else if (pathname.includes("/dashboard/admins")) {
+    currentPage = "Адміністратор";
+  } else if (pathname.includes("/dashboard/admin")) {
+    currentPage = "Адмін";
+  } else if (pathname.includes("/dashboard/ads")) {
+    currentPage = "Реклама";
+  } else if (pathname.includes("/dashboard/announcements")) {
+    currentPage = "Оголошення";
+  }
 
   return (
     <div className={className}>
@@ -42,7 +49,9 @@ export const Header: React.FC<Props> = ({ className }) => {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbPage>{currentPage}</BreadcrumbPage>
+                <BreadcrumbPage className="font-bold">
+                  {currentPage}
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

@@ -23,36 +23,40 @@ export function NavMain({
   }[];
 }) {
   const activeUrl = usePathname();
+  const ACTIVE_PATTERNS: Record<string, (activeUrl: string) => boolean> = {
+    "/dashboard/warehouse": (url) =>
+      url === "/dashboard/warehouse" ||
+      /^\/dashboard\/warehouse\/[^/]+\/edit$/.test(url),
+  };
+
+  const getIsActive = (itemUrl: string, activeUrl: string): boolean =>
+    ACTIVE_PATTERNS[itemUrl]?.(activeUrl) ?? activeUrl === itemUrl;
   return (
     <SidebarGroup>
-     
       <SidebarMenu>
-        {items.map((item) => {
-          const active = activeUrl === item.url;
-          return (
-            <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  tooltip={item.title}
-                  style={
-                    active
-                      ? {
-                          backgroundColor: "var(--primary)",
-                          color: "var(--background)",
-                        }
-                      : undefined
-                  }
-                >
-                  <a href={item.url}>
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </Collapsible>
-          );
-        })}
+        {items.map(({ title, url, icon: Icon, isActive }) => (
+          <Collapsible key={title} asChild defaultOpen={isActive}>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                tooltip={title}
+                style={
+                  getIsActive(url, activeUrl)
+                    ? {
+                        backgroundColor: "var(--primary)",
+                        color: "var(--background)",
+                      }
+                    : undefined
+                }
+              >
+                <a href={url}>
+                  <Icon />
+                  <span>{title}</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </Collapsible>
+        ))}
       </SidebarMenu>
     </SidebarGroup>
   );

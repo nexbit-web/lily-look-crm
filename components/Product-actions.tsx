@@ -77,9 +77,9 @@ export default function ProductActions({
             <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
               <Trash2Icon />
             </AlertDialogMedia>
-            <AlertDialogTitle>Видалити місто?</AlertDialogTitle>
+            <AlertDialogTitle>Видалити товар?</AlertDialogTitle>
             <AlertDialogDescription>
-              Ця дія видалить місто назавжди. Ви впевнені, що хочете продовжити?
+              Ця дія видалить товар назавжди. Ви впевнені, що хочете продовжити?
             </AlertDialogDescription>
           </AlertDialogHeader>
 
