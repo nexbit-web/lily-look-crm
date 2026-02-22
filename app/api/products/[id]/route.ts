@@ -80,7 +80,10 @@ export async function DELETE(
     const { id } = await params;
     console.log("DELETE /api/products/[id] ->", id);
 
-    await prisma.product.delete({ where: { id } });
+    await prisma.product.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("Delete error:", error);
