@@ -11,16 +11,16 @@ import { hashPassword } from "../node_modules/better-auth/dist/crypto/index.mjs"
 // INTERN
 
 async function main() {
-  const email = "victoria@lilylook.com";
-  const name = "Вікторія";
-  const password = "N8r$7vGq!pL2xZfA";
-  const role = "MANAGER";
-  const avatarUrl = "/user15643.jpg";
-  // const email = "admin@ladylook.com";
-  // const name = "Микита";
-  // const password = "N7@pQkR9#mL2$x4&wT6!vZ8";
-  // const role = "ADMIN";
-  // const avatarUrl = "/user156.jpg";
+  const email = "";
+  const name = "";
+  const password = "fA";
+  const role = "";
+  const avatarUrl = "";
+  // const email = "";
+  // const name = "";
+  // const password = "";
+  // const role = "";
+  // const avatarUrl = "";
 
   // Удаляем старого если есть
   const existing = await prisma.user.findUnique({ where: { email } });
