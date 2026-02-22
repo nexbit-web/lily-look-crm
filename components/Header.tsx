@@ -26,7 +26,11 @@ export const Header: React.FC<Props> = ({ className }) => {
     currentPage = "Додати товари";
   } else if (pathname.includes("/dashboard/warehouse")) {
     currentPage = "Товари";
-    if (pathname.endsWith("/edit")) currentPage += " (Редагувати товар)";
+    if (pathname.endsWith("/edit")) {
+      currentPage += " (Редагувати товар)";
+    } else if (/^\/dashboard\/warehouse\/[^/]+$/.test(pathname)) {
+      currentPage += " (Інформація про продукт)";
+    }
   } else if (pathname.includes("/dashboard/admins")) {
     currentPage = "Адміністратор";
   } else if (pathname.includes("/dashboard/admin")) {

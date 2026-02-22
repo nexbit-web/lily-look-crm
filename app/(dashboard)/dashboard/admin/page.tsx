@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
 import { Trash } from "lucide-react";
 import { checkRole } from "@/lib/checkRole";
+import { Spinner } from "@/components/ui/spinner";
 
 type Category = {
   id: string;
@@ -17,11 +18,13 @@ export default function CategoriesPage() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchCategories = async () => {
     const res = await fetch("/api/categories");
     const data = await res.json();
     setCategories(data);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -120,6 +123,13 @@ export default function CategoriesPage() {
       toast.error("Помилка видалення");
     }
   };
+
+  if (loading)
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center">
+        <Spinner className="h-6 w-6" />
+      </div>
+    );
 
   return (
     <div className="max-w-xl mx-auto p-6">

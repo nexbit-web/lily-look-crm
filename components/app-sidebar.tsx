@@ -12,9 +12,12 @@ import {
   Package,
   PackageOpen,
   PackagePlus,
+  PlusCircle,
   Send,
   ShieldUser,
   ShoppingCart,
+  UserRoundPlus,
+  UsersRound,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -47,9 +50,15 @@ const navItems = [
   },
   {
     title: "Замовлення",
-    url: "#",
+    url: "/dashboard/orders",
     icon: ShoppingCart,
-    roles: ["ADMIN"],
+    roles: ["MANAGER", "ADMIN"],
+  },
+  {
+    title: "Створити замовлення",
+    url: "/dashboard/orders/add",
+    icon: PlusCircle,
+    roles: ["MANAGER", "ADMIN"],
   },
   {
     title: "Товари",
@@ -64,22 +73,16 @@ const navItems = [
     roles: ["MANAGER", "ADMIN"],
   },
   {
-    title: "Працівники",
-    url: "#",
-    icon: IdCardLanyard,
-    roles: ["ADMIN"],
+    title: "Клієнти",
+    url: "/dashboard/customers",
+    icon: UsersRound,
+    roles: ["MANAGER", "ADMIN"],
   },
   {
-    title: "Аналітика",
-    url: "#",
-    icon: ChartSpline,
-    roles: ["ADMIN"],
-  },
-  {
-    title: "Витрати",
-    url: "#",
-    icon: BanknoteArrowDown,
-    roles: ["ADMIN"],
+    title: "Додати клієнта",
+    url: "/dashboard/customers/add",
+    icon: UserRoundPlus,
+    roles: ["MANAGER", "ADMIN"],
   },
   {
     title: "Адмін",
@@ -94,6 +97,19 @@ const navItems = [
     roles: ["ADMIN"],
   },
 ];
+
+// {
+//   title: "Витрати",
+//   url: "#",
+//   icon: BanknoteArrowDown,
+//   roles: ["ADMIN"],
+// },
+//   {
+//   title: "Працівники",
+//   url: "#",
+//   icon: IdCardLanyard,
+//   roles: ["ADMIN"],
+// },
 
 const navSecondary = [
   {

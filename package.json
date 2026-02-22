@@ -30,6 +30,7 @@
     "react-dom": "19.2.3",
     "react-hot-toast": "^2.6.0",
     "tailwind-merge": "^3.4.1",
+    "vaul": "^1.1.2",
     "ws": "^8.19.0",
     "z": "^1.0.9"
   },

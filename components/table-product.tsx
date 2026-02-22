@@ -33,6 +33,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { Plus } from "lucide-react";
 import { RoleGate } from "./Role-gate";
+import Link from "next/link";
 
 type Variant = {
   id: string;
@@ -47,6 +48,11 @@ type Product = {
   price: number;
   stock: number;
   sku: string;
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+  };
   variants: Variant[];
 };
 
@@ -124,7 +130,6 @@ export default function ProductsTable() {
         <RoleGate allowed={["MANAGER", "ADMIN"]}>
           <Button
             className="cursor-pointer"
-         
             onClick={() => router.push("/dashboard/warehouse/add")}
           >
             <Plus className="h-4 w-4" />
@@ -142,7 +147,7 @@ export default function ProductsTable() {
             <TableHead className="bg-input dark:bg-input">Артікул</TableHead>
             <TableHead className="bg-input dark:bg-input">Ціна</TableHead>
             <TableHead className="bg-input dark:bg-input">Кількість</TableHead>
-            <TableHead className="bg-input dark:bg-input">Варіанти</TableHead>
+            <TableHead className="bg-input dark:bg-input">Категорія</TableHead>
             <TableHead className="bg-input dark:bg-input rounded-tr-2xl">
               Дії
             </TableHead>
@@ -160,21 +165,18 @@ export default function ProductsTable() {
             paginatedProducts.map((product, index) => (
               <TableRow key={product.id}>
                 <TableCell>{(page - 1) * pageSize + index + 1}</TableCell>
-                <TableCell className="font-medium">{product.name}</TableCell>
+                <TableCell className="font-medium">
+                  <Link
+                    href={`/dashboard/warehouse/${product.id}`}
+                    className="hover:underline "
+                  >
+                    {product.name}
+                  </Link>
+                </TableCell>
                 <TableCell className="text-gray-500">{product.sku}</TableCell>
                 <TableCell>{product.price} грн</TableCell>
                 <TableCell>{product.stock}</TableCell>
-                <TableCell>
-                  {product.variants.length === 0 ? (
-                    <span className="text-gray-400 text-sm">Немає</span>
-                  ) : (
-                    product.variants.map((v) => (
-                      <div key={v.id} className="text-sm">
-                        {v.size} / {v.color} ({v.stock})
-                      </div>
-                    ))
-                  )}
-                </TableCell>
+                <TableCell>{product.category?.name ?? "—"}</TableCell>
                 <TableCell>
                   <ProductActions
                     productId={product.id}

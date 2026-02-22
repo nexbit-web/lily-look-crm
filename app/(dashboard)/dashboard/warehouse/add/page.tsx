@@ -59,17 +59,27 @@ export default function AddProductPage() {
   const [product, setProduct] = useState<ProductForm>(emptyProduct);
   const [isValid, setIsValid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/categories")
-      .then((r) => r.json())
-      .then((data: Category[]) => {
+    const loadCategories = async () => {
+      try {
+        const res = await fetch("/api/categories");
+        const data: Category[] = await res.json();
+
         setCategories(data);
+
         if (data.length > 0) {
           setProduct((p) => ({ ...p, categoryId: data[0].id }));
         }
-      })
-      .catch(() => toast.error("Не вдалося завантажити категорії"));
+      } catch {
+        toast.error("Не вдалося завантажити категорії");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCategories();
   }, []);
 
   useEffect(() => {
@@ -158,6 +168,12 @@ export default function AddProductPage() {
     }));
   };
 
+  if (loading)
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center">
+        <Spinner className="h-6 w-6" />
+      </div>
+    );
   return (
     <div className="max-w-2xl mx-auto px-6 pb-4">
       <FieldSet className="flex flex-col gap-3">
@@ -239,10 +255,14 @@ export default function AddProductPage() {
                 <SelectTrigger className="cursor-pointer">
                   <SelectValue placeholder="Оберіть категорію" />
                 </SelectTrigger>
-                <SelectContent >
+                <SelectContent>
                   <SelectGroup>
                     {categories.map((c) => (
-                      <SelectItem className="cursor-pointer" key={c.id} value={c.id}>
+                      <SelectItem
+                        className="cursor-pointer"
+                        key={c.id}
+                        value={c.id}
+                      >
                         {c.name}
                       </SelectItem>
                     ))}

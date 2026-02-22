@@ -23,11 +23,13 @@ export function NavMain({
   }[];
 }) {
   const activeUrl = usePathname();
-  const ACTIVE_PATTERNS: Record<string, (activeUrl: string) => boolean> = {
-    "/dashboard/warehouse": (url) =>
-      url === "/dashboard/warehouse" ||
-      /^\/dashboard\/warehouse\/[^/]+\/edit$/.test(url),
-  };
+ const ACTIVE_PATTERNS: Record<string, (activeUrl: string) => boolean> = {
+  "/dashboard/warehouse": (url) =>
+    /^\/dashboard\/warehouse(\/(?!add$)[^/]+(\/edit)?)?$/.test(url),
+
+  "/dashboard/customers": (url) =>
+    /^\/dashboard\/customers(\/(?!add$)[^/]+(\/edit)?)?$/.test(url),
+};
 
   const getIsActive = (itemUrl: string, activeUrl: string): boolean =>
     ACTIVE_PATTERNS[itemUrl]?.(activeUrl) ?? activeUrl === itemUrl;

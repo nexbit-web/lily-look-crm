@@ -2,12 +2,8 @@
 
 import {
   BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
   EllipsisVertical,
   LogOut,
-  Sparkles,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,7 +27,6 @@ import { signOut } from "@/lib/auth-client";
 import { useState } from "react";
 import type { Role } from "@/hooks/use-role";
 import { ROLE_LABELS } from "@/hooks/use-role";
-import { RoleGate } from "./Role-gate";
 import toast from "react-hot-toast";
 type NavUserProps = {
   name: string;

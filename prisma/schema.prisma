@@ -163,10 +163,10 @@ model Order {
   total      Float       @default(0)
 
   customerId String
-  customer   Customer @relation(fields: [customerId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade) // ← удалили клиента — удались все его заказы
 
   managerId  String?
-  manager    User? @relation(fields: [managerId], references: [id])
+  manager    User? @relation(fields: [managerId], references: [id], onDelete: SetNull) // ← удалили юзера — managerId станет null
 
   items    OrderItem[]
   payments Payment[]
@@ -181,17 +181,18 @@ model OrderItem {
   price     Float
 
   orderId   String
-  order     Order   @relation(fields: [orderId], references: [id])
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade) // ← удалили заказ — удалились items
 
   productId String
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict) // ← продукт нельзя удалить если есть в заказах
 }
 
 model Payment {
   id      String @id @default(cuid())
   amount  Float
+
   orderId String
-  order   Order @relation(fields: [orderId], references: [id])
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade) // ← удалили заказ — удалились платежи
 }
 
 model ActivityLog {
