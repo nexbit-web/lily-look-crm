@@ -39,26 +39,41 @@ export async function POST(req: NextRequest) {
       (sum: number, i: any) => sum + i.price * i.quantity,
       0,
     );
-
     const order = await prisma.$transaction(async (tx) => {
       for (const item of items) {
-        const product = await tx.product.findUnique({
-          where: { id: item.productId },
-        });
-        if (!product) throw new Error(`Продукт не знайдено`);
-        if (product.stock < item.quantity) {
-          throw new Error(`Недостатньо товару "${product.name}" на складі`);
+        if (item.variantId) {
+          // Списываем с варианта
+          const variant = await tx.productVariant.findUnique({
+            where: { id: item.variantId },
+          });
+          if (!variant) throw new Error(`Варіант не знайдено`);
+          if (variant.stock < item.quantity) {
+            throw new Error(`Недостатньо варіанту на складі`);
+          }
+          await tx.productVariant.update({
+            where: { id: item.variantId },
+            data: { stock: { decrement: item.quantity } },
+          });
+        } else {
+          // Списываем с основного продукта
+          const product = await tx.product.findUnique({
+            where: { id: item.productId },
+          });
+          if (!product) throw new Error(`Продукт не знайдено`);
+          if (product.stock < item.quantity) {
+            throw new Error(`Недостатньо товару "${product.name}" на складі`);
+          }
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { decrement: item.quantity } },
+          });
         }
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } },
-        });
       }
 
       return tx.order.create({
         data: {
           customerId,
-          managerId: session.user.id, // ← из сессии better-auth
+          managerId: session.user.id,
           total,
           items: {
             create: items.map((i: any) => ({

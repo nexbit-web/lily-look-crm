@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -136,7 +137,7 @@ export function OrdersTable() {
       if (!res.ok) throw new Error();
       const updated: Order = await res.json();
       setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
-      setSelectedOrder((prev) => (prev?.id === orderId ? updated : prev));
+      setSelectedOrder(null);
       toast.success("Статус оновлено");
     } catch {
       toast.error("Не вдалося оновити статус");
@@ -232,14 +233,8 @@ export function OrdersTable() {
                       {order.manager?.name ?? "—"}
                     </TableCell>
 
-                    <TableCell>
-                      <div className="text-sm text-gray-500 max-w-[200px]">
-                        {order.items.map((i) => (
-                          <div key={i.id} className="truncate">
-                            {i.product.name} × {i.quantity}
-                          </div>
-                        ))}
-                      </div>
+                    <TableCell className="text-sm text-gray-500">
+                      {order.items.length} поз.
                     </TableCell>
 
                     <TableCell className="font-medium">
@@ -369,7 +364,14 @@ function OrderDrawer({
         {order && (
           <>
             <DrawerHeader className="gap-1">
-              <DrawerTitle>{order.customer.name}</DrawerTitle>
+              <DrawerTitle>
+                <Link
+                  href={`/dashboard/customers/${order.customer.id}`}
+                  className="hover:underline"
+                >
+                  {order.customer.name}
+                </Link>
+              </DrawerTitle>
               <DrawerDescription>
                 Замовлення ·{" "}
                 {new Date(order.createdAt).toLocaleDateString("uk-UA")}

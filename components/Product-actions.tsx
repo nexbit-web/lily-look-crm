@@ -84,14 +84,19 @@ export default function ProductActions({
           </AlertDialogHeader>
 
           <AlertDialogFooter>
-            <AlertDialogCancel variant="outline" disabled={loading}>
+            <AlertDialogCancel
+              className="cursor-pointer"
+              variant="outline"
+              disabled={loading}
+            >
               Ні
             </AlertDialogCancel>
+
             <AlertDialogAction
               variant="destructive"
               disabled={loading}
               onClick={handleDelete}
-              className="flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? "Видаляю..." : "Так, видалити"}
             </AlertDialogAction>

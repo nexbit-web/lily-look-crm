@@ -10,6 +10,7 @@ import {
   Mail,
   FileText,
   Calendar,
+  House,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
@@ -148,8 +149,8 @@ export default function CustomerViewPage() {
             />
             {customer.notes && (
               <DetailRow
-                icon={<FileText size={15} />}
-                label="Нотатки"
+                icon={<House size={15} />} 
+                label="Арнера доставки"
                 value={customer.notes}
               />
             )}
