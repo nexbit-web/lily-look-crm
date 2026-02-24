@@ -4,18 +4,13 @@ import { hashPassword } from "../node_modules/better-auth/dist/crypto/index.mjs"
 
 // npx tsx scripts/create-user.ts
 
-// OWNER
-// ADMIN
-// MANAGER
-// EMPLOYEE
-// INTERN
-
 async function main() {
   const email = "";
   const name = "";
-  const password = "fA";
+  const password = "";
   const role = "";
   const avatarUrl = "";
+
   // const email = "";
   // const name = "";
   // const password = "";
