@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AnnouncementsPage() {
-  await checkRole(["OWNER", "ADMIN", "MANAGER", "EMPLOYEE"]);
+  await checkRole(["ADMIN", "MANAGER", "INTERN"]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

@@ -4,11 +4,11 @@ export type Role = "OWNER" | "ADMIN" | "MANAGER" | "EMPLOYEE" | "INTERN";
 
 // Описания ролей для отображения в UI
 export const ROLE_LABELS: Record<Role, string> = {
-  OWNER: "Владелец",
+  OWNER: "Власник",
   ADMIN: "Адмін",
   MANAGER: "Менеджер",
-  EMPLOYEE: "Сотрудник",
-  INTERN: "Стажёр",
+  EMPLOYEE: "Співробітник",
+  INTERN: "Стажер",
 };
 
 type SessionUser = {

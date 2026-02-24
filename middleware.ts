@@ -13,10 +13,10 @@ type Session = {
 };
 
 const ROLE_ROUTES: Record<string, Role[]> = {
-  "/dashboard/accounting": ["OWNER", "ADMIN"],
-  "/dashboard/employees": ["OWNER", "ADMIN"],
-  "/dashboard/orders": ["OWNER", "ADMIN", "MANAGER"],
-  "/dashboard/products": ["OWNER", "ADMIN", "MANAGER"],
+  "/dashboard/accounting": ["ADMIN", "MANAGER", "INTERN"],
+  "/dashboard/employees": ["ADMIN", "MANAGER", "INTERN"],
+  "/dashboard/orders": ["ADMIN", "MANAGER", "INTERN"],
+  "/dashboard/products": ["ADMIN", "MANAGER", "INTERN"],
   "/dashboard": ["OWNER", "ADMIN", "MANAGER", "EMPLOYEE", "INTERN"],
 };
 

@@ -3,10 +3,19 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { ArrowLeft, Pencil, Package, Tag, Hash, Calendar, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft,
+  Pencil,
+  Package,
+  Tag,
+  Hash,
+  Calendar,
+  RefreshCw,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Badge } from "@/components/ui/badge";
+import { RoleGate } from "@/components/Role-gate";
 
 type Variant = {
   id: string;
@@ -77,7 +86,6 @@ export default function ProductViewPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 p-6">
       <div className="max-w-3xl mx-auto">
-
         {/* Навигация */}
         <div className="flex items-center justify-between mb-4">
           <button
@@ -87,18 +95,19 @@ export default function ProductViewPage() {
             <ArrowLeft size={16} />
             <span>Товари</span>
           </button>
-          <Button
-            onClick={() => router.push(`/dashboard/warehouse/${id}/edit`)}
-            className="cursor-pointer  px-5 h-9 text-sm font-medium bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 transition-all"
-          >
-            <Pencil />
-            Редагувати
-          </Button>
+          <RoleGate allowed={["MANAGER", "ADMIN"]}>
+            <Button
+              onClick={() => router.push(`/dashboard/warehouse/${id}/edit`)}
+              className="cursor-pointer  px-5 h-9 text-sm font-medium bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 transition-all"
+            >
+              <Pencil />
+              Редагувати
+            </Button>
+          </RoleGate>
         </div>
 
         {/* Карточка продукта */}
         <div className="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-sm border border-gray-100 dark:border-zinc-800 mb-4">
-
           {/* Изображение или заглушка */}
           {product.imageUrl ? (
             <div className="w-full h-64 overflow-hidden">
@@ -153,8 +162,16 @@ export default function ProductViewPage() {
             </h2>
           </div>
           <div className="divide-y divide-gray-50 dark:divide-zinc-800">
-            <DetailRow icon={<Hash size={15} />} label="Артикул (SKU)" value={product.sku} />
-            <DetailRow icon={<Tag size={15} />} label="Категорія" value={product.category?.name ?? "—"} />
+            <DetailRow
+              icon={<Hash size={15} />}
+              label="Артикул (SKU)"
+              value={product.sku}
+            />
+            <DetailRow
+              icon={<Tag size={15} />}
+              label="Категорія"
+              value={product.category?.name ?? "—"}
+            />
             <DetailRow
               icon={<Calendar size={15} />}
               label="Створено"
@@ -198,8 +215,8 @@ export default function ProductViewPage() {
                         v.stock > 5
                           ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300"
                           : v.stock > 0
-                          ? "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300"
-                          : "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"
+                            ? "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300"
+                            : "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"
                       }
                     >
                       {v.stock} шт

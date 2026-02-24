@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function WarehousePage() {
-  await checkRole(["OWNER", "ADMIN", "MANAGER", "EMPLOYEE"]);
+  await checkRole(["MANAGER", "ADMIN", "INTERN"]);
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

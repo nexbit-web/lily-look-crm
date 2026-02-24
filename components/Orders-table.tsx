@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { RoleGate } from "./Role-gate";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -380,32 +381,36 @@ function OrderDrawer({
 
             <div className="flex flex-col gap-5 overflow-y-auto px-4 pb-2">
               {/* Статус */}
-              <div className="flex flex-col gap-2">
-                <Label className="text-sm font-medium">Статус замовлення</Label>
-                <Select
-                  value={order.status}
-                  onValueChange={(v) => onStatusChange(order.id, v)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue>
-                      <Badge
-                        className={STATUS_COLORS[order.status as StatusKey]}
-                      >
-                        {STATUS_LABELS[order.status as StatusKey]}
-                      </Badge>
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(
-                      Object.entries(STATUS_LABELS) as [StatusKey, string][]
-                    ).map(([val, label]) => (
-                      <SelectItem key={val} value={val}>
-                        <Badge className={STATUS_COLORS[val]}>{label}</Badge>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <RoleGate allowed={["MANAGER", "ADMIN"]}>
+                <div className="flex flex-col gap-2">
+                  <Label className="text-sm font-medium">
+                    Статус замовлення
+                  </Label>
+                  <Select
+                    value={order.status}
+                    onValueChange={(v) => onStatusChange(order.id, v)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue>
+                        <Badge
+                          className={STATUS_COLORS[order.status as StatusKey]}
+                        >
+                          {STATUS_LABELS[order.status as StatusKey]}
+                        </Badge>
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(
+                        Object.entries(STATUS_LABELS) as [StatusKey, string][]
+                      ).map(([val, label]) => (
+                        <SelectItem key={val} value={val}>
+                          <Badge className={STATUS_COLORS[val]}>{label}</Badge>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </RoleGate>
 
               {/* Менеджер */}
               <div className="flex flex-col gap-1">

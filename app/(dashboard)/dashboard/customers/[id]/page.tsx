@@ -8,7 +8,6 @@ import {
   ShoppingBag,
   Phone,
   Mail,
-  FileText,
   Calendar,
   House,
 } from "lucide-react";

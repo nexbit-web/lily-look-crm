@@ -177,13 +177,16 @@ export default function ProductsTable() {
                 <TableCell>{product.price} грн</TableCell>
                 <TableCell>{product.stock}</TableCell>
                 <TableCell>{product.category?.name ?? "—"}</TableCell>
-                <TableCell>
-                  <ProductActions
-                    productId={product.id}
-                    onDelete={handleDelete}
-                    onEdit={handleEdit}
-                  />
-                </TableCell>
+
+                <RoleGate allowed={["MANAGER", "ADMIN"]}>
+                  <TableCell>
+                    <ProductActions
+                      productId={product.id}
+                      onDelete={handleDelete}
+                      onEdit={handleEdit}
+                    />
+                  </TableCell>
+                </RoleGate>
               </TableRow>
             ))
           )}
