@@ -7,6 +7,8 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Plus,
+  Search,
+  X,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -42,7 +44,7 @@ import {
 } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { RoleGate } from "./Role-gate";
+import { RoleGate } from "@/components/Role-gate";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -171,12 +173,29 @@ export function OrdersTable() {
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <h1 className="text-xl font-bold">Замовлення ({orders.length})</h1>
         <div className="flex items-center gap-2">
-          <Input
-            placeholder="Пошук за клієнтом..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-xs"
-          />
+          <div className="relative">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+            />
+            <Input
+              placeholder="Пошук за клієнтом..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 pr-8 max-w-xs"
+            />
+            {search && (
+              <button
+                onClick={() => {
+                  setSearch("");
+                  setPage(1);
+                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-white cursor-pointer transition-colors"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
           <Button
             size="sm"
             onClick={() => router.push("/dashboard/orders/add")}
@@ -196,9 +215,9 @@ export function OrdersTable() {
               <TableHead>Клієнт</TableHead>
               <TableHead>Менеджер</TableHead>
               <TableHead>Товари</TableHead>
+              <TableHead>Статус</TableHead>
               <TableHead>Сума</TableHead>
               <TableHead>Дата</TableHead>
-              <TableHead>Статус</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -238,18 +257,20 @@ export function OrdersTable() {
                       {order.items.length} поз.
                     </TableCell>
 
+                    <TableCell>
+                      <Badge
+                        className={STATUS_COLORS[order.status as StatusKey]}
+                      >
+                        {STATUS_LABELS[order.status as StatusKey]}
+                      </Badge>
+                    </TableCell>
+
                     <TableCell className="font-medium">
                       {order.total} ₴
                     </TableCell>
 
                     <TableCell className="text-sm text-gray-500">
                       {new Date(order.createdAt).toLocaleDateString("uk-UA")}
-                    </TableCell>
-
-                    <TableCell>
-                      <Badge className={STATUS_COLORS[status]}>
-                        {STATUS_LABELS[status]}
-                      </Badge>
                     </TableCell>
                   </TableRow>
                 );
@@ -380,7 +401,7 @@ function OrderDrawer({
             </DrawerHeader>
 
             <div className="flex flex-col gap-5 overflow-y-auto px-4 pb-2">
-              {/* Статус */}
+              {/* Статус — тільки для MANAGER/ADMIN */}
               <RoleGate allowed={["MANAGER", "ADMIN"]}>
                 <div className="flex flex-col gap-2">
                   <Label className="text-sm font-medium">
@@ -409,6 +430,19 @@ function OrderDrawer({
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+              </RoleGate>
+              {/* Статус тільки для перегляду — для інших ролей */}
+              <RoleGate allowed={["EMPLOYEE", "INTERN"]}>
+                <div className="flex flex-col gap-2">
+                  <Label className="text-sm font-medium">
+                    Статус замовлення
+                  </Label>
+                  <Badge
+                    className={`w-fit ${STATUS_COLORS[order.status as StatusKey]}`}
+                  >
+                    {STATUS_LABELS[order.status as StatusKey]}
+                  </Badge>
                 </div>
               </RoleGate>
 

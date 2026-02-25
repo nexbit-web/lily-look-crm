@@ -2,22 +2,17 @@
 
 import * as React from "react";
 import {
-  BanknoteArrowDown,
-  ChartSpline,
-  Cog,
-  Command,
-  House,
-  IdCardLanyard,
-  LifeBuoy,
-  Package,
-  PackageOpen,
-  PackagePlus,
-  PlusCircle,
-  Send,
-  ShieldUser,
   ShoppingCart,
-  UserRoundPlus,
+  PlusCircle,
+  Package,
+  PackagePlus,
   UsersRound,
+  UserRoundPlus,
+  ShieldUser,
+  LifeBuoy,
+  Send,
+  Command,
+  LucideIcon,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -34,6 +29,8 @@ import {
 } from "@/components/ui/sidebar";
 import type { Role } from "@/hooks/use-role";
 
+// ─── Типи ─────────────────────────────────────────────────────────────────────
+
 type AppSidebarUser = {
   name: string;
   email: string;
@@ -41,99 +38,85 @@ type AppSidebarUser = {
   role: Role;
 };
 
-const navItems = [
+type NavItem = {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+  roles: Role[];
+};
+
+// ─── Конфіг навігації ─────────────────────────────────────────────────────────
+// Константа поза компонентом — створюється один раз при завантаженні модуля
+
+const NAV_ITEMS: NavItem[] = [
+  // Замовлення
   {
-    title: "Головна",
-    url: "/dashboard/stats",
-    icon: House,
-    roles: ["ADMIN", "MANAGER", "INTERN"],
-  },
-  {
-    title: "Замовлення",
+    title: "Всі замовлення",
     url: "/dashboard/orders",
     icon: ShoppingCart,
-    roles: ["MANAGER", "ADMIN", "INTERN"],
+    roles: ["OWNER", "MANAGER", "ADMIN", "EMPLOYEE", "INTERN"],
   },
   {
-    title: "Створити замовлення",
+    title: "Нове замовлення",
     url: "/dashboard/orders/add",
     icon: PlusCircle,
-    roles: ["MANAGER", "ADMIN", "INTERN"],
+    roles: ["OWNER", "MANAGER", "ADMIN", "EMPLOYEE", "INTERN"],
   },
+  // Склад
   {
     title: "Товари",
     url: "/dashboard/warehouse",
     icon: Package,
-    roles: ["MANAGER", "ADMIN", "INTERN"],
+    roles: ["OWNER", "MANAGER", "ADMIN", "EMPLOYEE", "INTERN"],
   },
   {
-    title: "Додати товари",
+    title: "Додати товар",
     url: "/dashboard/warehouse/add",
     icon: PackagePlus,
-    roles: ["MANAGER", "ADMIN"],
+    roles: ["OWNER", "MANAGER", "ADMIN"],
   },
+  // Клієнти
   {
-    title: "Клієнти",
+    title: "Всі клієнти",
     url: "/dashboard/customers",
     icon: UsersRound,
-    roles: ["MANAGER", "ADMIN", "INTERN"],
+    roles: ["OWNER", "MANAGER", "ADMIN", "EMPLOYEE", "INTERN"],
   },
   {
     title: "Додати клієнта",
     url: "/dashboard/customers/add",
     icon: UserRoundPlus,
-    roles: ["MANAGER", "ADMIN", "INTERN"],
+    roles: ["OWNER", "MANAGER", "ADMIN", "EMPLOYEE", "INTERN"],
   },
+  // Система
   {
-    title: "Адмін",
+    title: "Адмін панель",
     url: "/dashboard/admin",
     icon: ShieldUser,
-    roles: ["ADMIN"],
-  },
-  {
-    title: "Налаштування",
-    url: "#",
-    icon: Cog,
-    roles: ["ADMIN"],
+    roles: ["OWNER", "ADMIN"],
   },
 ];
 
-// {
-//   title: "Витрати",
-//   url: "#",
-//   icon: BanknoteArrowDown,
-//   roles: ["ADMIN"],
-// },
-//   {
-//   title: "Працівники",
-//   url: "#",
-//   icon: IdCardLanyard,
-//   roles: ["ADMIN"],
-// },
-
-const navSecondary = [
-  {
-    title: "Підтримка",
-    url: "#",
-    icon: LifeBuoy,
-  },
-  {
-    title: "Telegram група",
-    url: "#",
-    icon: Send,
-  },
+const NAV_SECONDARY = [
+  { title: "Підтримка", url: "#", icon: LifeBuoy },
+  { title: "Telegram група", url: "#", icon: Send },
 ];
+
+// ─── Компонент ────────────────────────────────────────────────────────────────
 
 export function AppSidebar({
   user,
   ...props
 }: { user: AppSidebarUser } & React.ComponentProps<typeof Sidebar>) {
-  const filteredNavItems = navItems.filter((item) =>
-    item.roles.includes(user.role),
+  // Один useMemo, один прохід масиву — швидше не буває
+  const visibleItems = React.useMemo(
+    () => NAV_ITEMS.filter((item) => item.roles.includes(user.role)),
+    [user.role],
   );
 
   return (
     <Sidebar variant="inset" {...props}>
+      {/* ── Шапка ── */}
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -141,7 +124,7 @@ export function AppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <a href="/dashboard">
                 <Command className="!size-5" />
                 <span className="text-base font-semibold">Acme Inc.</span>
               </a>
@@ -150,11 +133,13 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
 
+      {/* ── Навігація ── */}
       <SidebarContent>
-        <NavMain items={filteredNavItems} />
-        <NavSecondary items={navSecondary} className="mt-auto" />
+        <NavMain items={visibleItems} />
+        <NavSecondary items={NAV_SECONDARY} className="mt-auto" />
       </SidebarContent>
 
+      {/* ── Користувач ── */}
       <SidebarFooter>
         <NavUser user={user} />
       </SidebarFooter>

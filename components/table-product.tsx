@@ -1,6 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { toast } from "react-hot-toast";
+import {
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Search,
+  X,
+} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -10,7 +22,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { toast } from "react-hot-toast";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -19,92 +33,80 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Field, FieldLabel } from "@/components/ui/field";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import ProductActions from "./Product-actions";
-import { Spinner } from "./ui/spinner";
-import { useRouter } from "next/navigation";
-import { Button } from "./ui/button";
-import { Plus } from "lucide-react";
-import { RoleGate } from "./Role-gate";
-import Link from "next/link";
+import { Spinner } from "@/components/ui/spinner";
+import { RoleGate } from "@/components/Role-gate";
+import ProductActions from "@/components/Product-actions";
 
-type Variant = {
-  id: string;
-  size: string;
-  color: string;
-  stock: number;
-};
+// ─── Types ────────────────────────────────────────────────────────────────────
 
+type Variant = { id: string; size: string; color: string; stock: number };
 type Product = {
   id: string;
   name: string;
   price: number;
   stock: number;
   sku: string;
-  category: {
-    id: string;
-    name: string;
-    slug: string;
-  };
+  category: { id: string; name: string; slug: string };
   variants: Variant[];
 };
 
+// Реальний залишок — сума варіантів або stock продукту
+const getRealStock = (p: Product) =>
+  p.variants?.length > 0
+    ? p.variants.reduce((s, v) => s + v.stock, 0)
+    : p.stock;
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function ProductsTable() {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(6);
+  const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(true);
 
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch("/api/products");
-      const data: Product[] = await res.json();
-      setProducts(data);
-    } catch (err) {
-      console.error(err);
-      toast.error("Не вдалося завантажити продукти");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchProducts();
+    let cancelled = false;
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data: Product[]) => {
+        if (!cancelled) setProducts(data);
+      })
+      .catch(() => toast.error("Не вдалося завантажити продукти"))
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
     if (!res.ok) throw new Error("Помилка видалення");
     setProducts((prev) => prev.filter((p) => p.id !== id));
-  };
+  }, []);
 
-  const router = useRouter();
-
-  const handleEdit = (id: string) => {
-    router.push(`/dashboard/warehouse/${id}/edit`);
-  };
-
-  // Поиск
-  const filteredProducts = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku.toLowerCase().includes(search.toLowerCase()),
+  const handleEdit = useCallback(
+    (id: string) => {
+      router.push(`/dashboard/warehouse/${id}/edit`);
+    },
+    [router],
   );
 
-  // Пагинация
-  const totalPages = Math.ceil(filteredProducts.length / pageSize);
-  const paginatedProducts = filteredProducts.slice(
-    (page - 1) * pageSize,
-    page * pageSize,
+  const filtered = useMemo(
+    () =>
+      products.filter(
+        (p) =>
+          p.name.toLowerCase().includes(search.toLowerCase()) ||
+          p.sku.toLowerCase().includes(search.toLowerCase()),
+      ),
+    [products, search],
   );
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   if (loading)
     return (
@@ -114,128 +116,218 @@ export default function ProductsTable() {
     );
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Продукти ({products.length})</h1>
-
-      <div className="flex justify-between mb-2 gap-2.5">
-        <Input
-          placeholder="Пошук за назвою або Артікул..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="mb-4 max-w-sm"
-        />
-        <RoleGate allowed={["MANAGER", "ADMIN"]}>
-          <Button
-            className="cursor-pointer"
-            onClick={() => router.push("/dashboard/warehouse/add")}
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </RoleGate>
+    <div className="flex flex-col gap-4 p-4">
+      {/* ── Тулбар ── */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <h1 className="text-xl font-bold">Товари ({products.length})</h1>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+            />
+            <Input
+              placeholder="Пошук за назвою або SKU..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="pl-9 pr-8 max-w-xs"
+            />
+            {search && (
+              <button
+                onClick={() => {
+                  setSearch("");
+                  setPage(1);
+                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:hover:text-white cursor-pointer transition-colors"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+          <RoleGate allowed={["MANAGER", "ADMIN"]}>
+            <Button
+              size="sm"
+              className="cursor-pointer"
+              onClick={() => router.push("/dashboard/warehouse/add")}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              <span className="hidden lg:inline">Новий товар</span>
+            </Button>
+          </RoleGate>
+        </div>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="bg-input dark:bg-input rounded-tl-2xl">
-              #
-            </TableHead>
-            <TableHead className="bg-input dark:bg-input">Назва</TableHead>
-            <TableHead className="bg-input dark:bg-input">Артікул</TableHead>
-            <TableHead className="bg-input dark:bg-input">Ціна</TableHead>
-            <TableHead className="bg-input dark:bg-input">Кількість</TableHead>
-            <TableHead className="bg-input dark:bg-input">Категорія</TableHead>
-            <TableHead className="bg-input dark:bg-input rounded-tr-2xl">
-              Дії
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-          {paginatedProducts.length === 0 ? (
+      {/* ── Таблиця ── */}
+      <div className="overflow-hidden rounded-2xl border">
+        <Table>
+          <TableHeader className="bg-input dark:bg-input sticky top-0 z-10">
             <TableRow>
-              <TableCell colSpan={7} className="text-center text-gray-400 py-8">
-                Продуктів не знайдено
-              </TableCell>
+              <TableHead>#</TableHead>
+              <TableHead>Назва</TableHead>
+              <TableHead>Артикул</TableHead>
+              <TableHead>Ціна</TableHead>
+              <TableHead>На складі</TableHead>
+              <TableHead>Категорія</TableHead>
+              <TableHead>Дії</TableHead>
             </TableRow>
-          ) : (
-            paginatedProducts.map((product, index) => (
-              <TableRow key={product.id}>
-                <TableCell>{(page - 1) * pageSize + index + 1}</TableCell>
-                <TableCell className="font-medium">
-                  <Link
-                    href={`/dashboard/warehouse/${product.id}`}
-                    className="hover:underline "
-                  >
-                    {product.name}
-                  </Link>
+          </TableHeader>
+          <TableBody>
+            {paginated.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={7}
+                  className="h-24 text-center text-gray-400"
+                >
+                  Продуктів не знайдено
                 </TableCell>
-                <TableCell className="text-gray-500">{product.sku}</TableCell>
-                <TableCell>{product.price} грн</TableCell>
-                <TableCell>{product.stock}</TableCell>
-                <TableCell>{product.category?.name ?? "—"}</TableCell>
-
-                <RoleGate allowed={["MANAGER", "ADMIN"]}>
-                  <TableCell>
-                    <ProductActions
-                      productId={product.id}
-                      onDelete={handleDelete}
-                      onEdit={handleEdit}
-                    />
-                  </TableCell>
-                </RoleGate>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ) : (
+              paginated.map((product, index) => {
+                const stock = getRealStock(product);
+                const hasVariants = product.variants?.length > 0;
+                const availableV =
+                  product.variants?.filter((v) => v.stock > 0).length ?? 0;
 
-      {/* PAGINATION */}
-      <div className="flex items-center justify-between gap-4 mt-4">
-        <Field orientation="horizontal" className="w-fit">
-          <FieldLabel>Рядків</FieldLabel>
-          <Select
-            value={String(pageSize)}
-            onValueChange={(v) => {
-              setPageSize(Number(v));
-              setPage(1);
-            }}
-          >
-            <SelectTrigger className="w-20">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent align="start">
-              <SelectGroup>
-                {[6, 10, 25, 50, 100].map((n) => (
-                  <SelectItem key={n} value={String(n)}>
-                    {n}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </Field>
+                return (
+                  <TableRow key={product.id}>
+                    <TableCell className="text-xs text-gray-400 font-mono">
+                      {(page - 1) * pageSize + index + 1}
+                    </TableCell>
 
-        <Pagination className="mx-0 w-auto">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              />
-            </PaginationItem>
-            <span className="flex px-3 text-sm">
-              {page} / {totalPages || 1}
-            </span>
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => setPage((p) => Math.min(totalPages || 1, p + 1))}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/dashboard/warehouse/${product.id}`}
+                        className="hover:underline cursor-pointer"
+                      >
+                        {product.name}
+                      </Link>
+                    </TableCell>
+
+                    <TableCell className="text-gray-500 font-mono text-xs">
+                      {product.sku}
+                    </TableCell>
+
+                    <TableCell className="font-medium tabular-nums">
+                      {product.price} ₴
+                    </TableCell>
+
+                    {/* На складі — реальний залишок з кольором */}
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          className={
+                            stock === 0
+                              ? "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"
+                              : stock <= 5
+                                ? "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300"
+                                : "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300"
+                          }
+                        >
+                          {stock} шт
+                        </Badge>
+                        {hasVariants && (
+                          <span className="text-xs text-gray-400 whitespace-nowrap">
+                            {availableV}/{product.variants.length} вар.
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-gray-500">
+                      {product.category?.name ?? "—"}
+                    </TableCell>
+
+                    <RoleGate allowed={["MANAGER", "ADMIN"]}>
+                      <TableCell>
+                        <ProductActions
+                          productId={product.id}
+                          onDelete={handleDelete}
+                          onEdit={handleEdit}
+                        />
+                      </TableCell>
+                    </RoleGate>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* ── Пагінація ── */}
+      <div className="flex items-center justify-between px-1">
+        <span className="text-muted-foreground text-sm">
+          Всього: {filtered.length}
+        </span>
+        <div className="flex items-center gap-4">
+          <div className="hidden items-center gap-2 lg:flex">
+            <Label className="text-sm font-medium">Рядків</Label>
+            <Select
+              value={String(pageSize)}
+              onValueChange={(v) => {
+                setPageSize(Number(v));
+                setPage(1);
+              }}
+            >
+              <SelectTrigger size="sm" className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent side="top">
+                <SelectGroup>
+                  {[10, 20, 50].map((n) => (
+                    <SelectItem key={n} value={String(n)}>
+                      {n}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+          <span className="text-sm font-medium">
+            {page} / {totalPages}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="hidden h-8 w-8 lg:flex cursor-pointer"
+              onClick={() => setPage(1)}
+              disabled={page === 1}
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 cursor-pointer"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 cursor-pointer"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="hidden h-8 w-8 lg:flex cursor-pointer"
+              onClick={() => setPage(totalPages)}
+              disabled={page === totalPages}
+            >
+              <ChevronsRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

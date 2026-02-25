@@ -21,9 +21,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-    console.log("POST /api/products ->", data);
 
-    // Проверка дубликата SKU
+    // Перевірка дубліката SKU
     const existing = await prisma.product.findUnique({
       where: { sku: data.sku },
     });
@@ -35,22 +34,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Якщо є варіанти — stock = сума всіх варіантів
+    // Якщо варіантів немає — stock береться з форми
+    const hasVariants = data.variants?.length > 0;
+    const totalStock = hasVariants
+      ? data.variants.reduce(
+          (sum: number, v: any) => sum + (parseInt(v.stock) || 0),
+          0,
+        )
+      : data.stock;
+
     const product = await prisma.product.create({
       data: {
         name: data.name,
         description: data.description || null,
         price: data.price,
         sku: data.sku,
-        stock: data.stock,
+        stock: totalStock, // ← завжди актуальне сумарне
         imageUrl: data.imageUrl || null,
         isActive: data.isActive ?? true,
         categoryId: data.categoryId,
-        variants: data.variants?.length
+        variants: hasVariants
           ? {
               create: data.variants.map((v: any) => ({
                 size: v.size,
                 color: v.color,
-                stock: v.stock,
+                stock: parseInt(v.stock) || 0,
               })),
             }
           : undefined,
@@ -60,7 +69,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(product);
   } catch (error: any) {
-    // Подстраховка на случай race condition
     if (error.code === "P2002") {
       return NextResponse.json(
         { error: "Продукт з таким артикулом вже існує" },

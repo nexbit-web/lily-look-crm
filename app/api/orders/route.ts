@@ -17,7 +17,6 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    // Получаем сессию через better-auth
     const session = await auth.api.getSession({
       headers: await headers(),
     });
@@ -39,10 +38,11 @@ export async function POST(req: NextRequest) {
       (sum: number, i: any) => sum + i.price * i.quantity,
       0,
     );
+
     const order = await prisma.$transaction(async (tx) => {
       for (const item of items) {
         if (item.variantId) {
-          // Списываем с варианта
+          // Перевіряємо варіант
           const variant = await tx.productVariant.findUnique({
             where: { id: item.variantId },
           });
@@ -50,12 +50,29 @@ export async function POST(req: NextRequest) {
           if (variant.stock < item.quantity) {
             throw new Error(`Недостатньо варіанту на складі`);
           }
+
+          // Перевіряємо суммарний stock продукту
+          const product = await tx.product.findUnique({
+            where: { id: item.productId },
+          });
+          if (!product) throw new Error(`Продукт не знайдено`);
+          if (product.stock < item.quantity) {
+            throw new Error(`Недостатньо товару "${product.name}" на складі`);
+          }
+
+          // Списуємо з варіанту
           await tx.productVariant.update({
             where: { id: item.variantId },
             data: { stock: { decrement: item.quantity } },
           });
+
+          // Списуємо із суммарного stock продукту
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { decrement: item.quantity } },
+          });
         } else {
-          // Списываем с основного продукта
+          // Без варіанту — списуємо тільки з продукту
           const product = await tx.product.findUnique({
             where: { id: item.productId },
           });
@@ -78,6 +95,7 @@ export async function POST(req: NextRequest) {
           items: {
             create: items.map((i: any) => ({
               productId: i.productId,
+              variantId: i.variantId ?? null,
               quantity: i.quantity,
               price: i.price,
             })),

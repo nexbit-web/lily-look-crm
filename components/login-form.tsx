@@ -57,7 +57,7 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
       return;
     }
 
-    router.push("/dashboard/stats");
+    router.push("/dashboard/orders");
     router.refresh();
   }
 
