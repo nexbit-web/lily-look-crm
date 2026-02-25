@@ -50,11 +50,14 @@ import { RoleGate } from "@/components/Role-gate";
 
 type OrderProduct = { name: string };
 
+type OrderVariant = { id: string; size: string; color: string } | null;
+
 type OrderItem = {
   id: string;
   quantity: number;
   price: number;
   product: OrderProduct;
+  variant: OrderVariant;
 };
 
 type OrderCustomer = { id: string; name: string };
@@ -382,36 +385,65 @@ function OrderDrawer({
       }}
       direction={isMobile ? "bottom" : "right"}
     >
-      <DrawerContent>
+      <DrawerContent className="flex flex-col">
         {order && (
           <>
-            <DrawerHeader className="gap-1">
-              <DrawerTitle>
-                <Link
-                  href={`/dashboard/customers/${order.customer.id}`}
-                  className="hover:underline"
-                >
-                  {order.customer.name}
-                </Link>
-              </DrawerTitle>
-              <DrawerDescription>
-                Замовлення ·{" "}
-                {new Date(order.createdAt).toLocaleDateString("uk-UA")}
-              </DrawerDescription>
-            </DrawerHeader>
+            {/* ── Шапка ── */}
+            <div className="px-5 pt-5 pb-4 border-b border-gray-100 dark:border-zinc-800">
+              {/* Клієнт + дата */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <Link
+                    href={`/dashboard/customers/${order.customer.id}`}
+                    className="text-lg font-semibold tracking-tight hover:underline line-clamp-1"
+                  >
+                    {order.customer.name}
+                  </Link>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {new Date(order.createdAt).toLocaleDateString("uk-UA", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+                <DrawerClose asChild>
+                  <button className="w-7 h-7 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 transition-all cursor-pointer shrink-0 mt-0.5">
+                    <X size={14} />
+                  </button>
+                </DrawerClose>
+              </div>
 
-            <div className="flex flex-col gap-5 overflow-y-auto px-4 pb-2">
-              {/* Статус — тільки для MANAGER/ADMIN */}
+              {/* Сума + менеджер */}
+              <div className="flex items-center gap-4 mt-3">
+                <div className="flex-1 bg-gray-50 dark:bg-zinc-800/60 rounded-2xl px-4 py-2.5">
+                  <p className="text-xs text-gray-400 mb-0.5">Сума</p>
+                  <p className="text-lg font-bold tabular-nums">
+                    {order.total.toFixed(0)} ₴
+                  </p>
+                </div>
+                <div className="flex-1 bg-gray-50 dark:bg-zinc-800/60 rounded-2xl px-4 py-2.5">
+                  <p className="text-xs text-gray-400 mb-0.5">Менеджер</p>
+                  <p className="text-sm font-semibold truncate">
+                    {order.manager?.name ?? "—"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Scrollable body ── */}
+            <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-5">
+              {/* Статус — MANAGER/ADMIN можуть змінювати */}
               <RoleGate allowed={["MANAGER", "ADMIN"]}>
                 <div className="flex flex-col gap-2">
-                  <Label className="text-sm font-medium">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-zinc-500">
                     Статус замовлення
-                  </Label>
+                  </p>
                   <Select
                     value={order.status}
                     onValueChange={(v) => onStatusChange(order.id, v)}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full rounded-xl h-10">
                       <SelectValue>
                         <Badge
                           className={STATUS_COLORS[order.status as StatusKey]}
@@ -432,12 +464,13 @@ function OrderDrawer({
                   </Select>
                 </div>
               </RoleGate>
-              {/* Статус тільки для перегляду — для інших ролей */}
+
+              {/* Статус — тільки перегляд */}
               <RoleGate allowed={["EMPLOYEE", "INTERN"]}>
                 <div className="flex flex-col gap-2">
-                  <Label className="text-sm font-medium">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-zinc-500">
                     Статус замовлення
-                  </Label>
+                  </p>
                   <Badge
                     className={`w-fit ${STATUS_COLORS[order.status as StatusKey]}`}
                   >
@@ -446,32 +479,47 @@ function OrderDrawer({
                 </div>
               </RoleGate>
 
-              {/* Менеджер */}
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs text-gray-400">Менеджер</Label>
-                <span className="text-sm font-medium">
-                  {order.manager?.name ?? "—"}
-                </span>
-              </div>
-
               {/* Товари */}
-              <div className="flex flex-col gap-2">
-                <Label className="text-sm font-medium">Товари</Label>
+              <div className="flex flex-col gap-2.5">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-zinc-500">
+                  Товари · {order.items.length} поз.
+                </p>
                 <div className="flex flex-col gap-2">
-                  {order.items.map((item) => (
+                  {order.items.map((item, i) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between rounded-xl border p-3 bg-gray-50 dark:bg-zinc-900"
+                      className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50 dark:bg-zinc-800/50 border border-gray-100 dark:border-zinc-800"
                     >
-                      <div>
-                        <p className="text-sm font-medium">
+                      {/* Номер */}
+                      <div className="w-7 h-7 rounded-full bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 flex items-center justify-center text-xs font-semibold text-gray-400 shrink-0">
+                        {i + 1}
+                      </div>
+
+                      {/* Назва + варіант */}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium leading-snug truncate">
                           {item.product.name}
                         </p>
-                        <p className="text-xs text-gray-400">
-                          {item.price} ₴ × {item.quantity}
+                        {item.variant && (
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 text-xs font-medium">
+                              {item.variant.size}
+                            </span>
+                            <span className="text-gray-300 dark:text-zinc-600 text-xs">
+                              ·
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-zinc-400">
+                              {item.variant.color}
+                            </span>
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-400 mt-0.5 tabular-nums">
+                          {item.price} ₴ × {item.quantity} шт
                         </p>
                       </div>
-                      <span className="text-sm font-semibold">
+
+                      {/* Сума */}
+                      <span className="text-sm font-bold tabular-nums shrink-0">
                         {(item.price * item.quantity).toFixed(0)} ₴
                       </span>
                     </div>
@@ -479,18 +527,14 @@ function OrderDrawer({
                 </div>
               </div>
 
-              {/* Итого */}
-              <div className="flex items-center justify-between pt-1 border-t">
+              {/* Підсумок */}
+              <div className="flex items-center justify-between px-1 pt-2 border-t border-gray-100 dark:border-zinc-800">
                 <span className="text-sm text-gray-500">Загальна сума</span>
-                <span className="text-lg font-bold">{order.total} ₴</span>
+                <span className="text-xl font-bold tabular-nums">
+                  {order.total.toFixed(0)} ₴
+                </span>
               </div>
             </div>
-
-            <DrawerFooter>
-              <DrawerClose asChild>
-                <Button variant="outline">Закрити</Button>
-              </DrawerClose>
-            </DrawerFooter>
           </>
         )}
       </DrawerContent>

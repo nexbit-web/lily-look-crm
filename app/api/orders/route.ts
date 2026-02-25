@@ -8,7 +8,12 @@ export async function GET() {
     include: {
       customer: true,
       manager: { select: { id: true, name: true } },
-      items: { include: { product: true } },
+      items: {
+        include: {
+          product: true,
+          variant: true, // ← тепер повертаємо варіант
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -17,16 +22,12 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
+    const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Не авторизовано" }, { status: 401 });
     }
 
     const { customerId, items } = await req.json();
-
     if (!customerId || !items?.length) {
       return NextResponse.json(
         { error: "Клієнт та товари обов'язкові" },
@@ -42,51 +43,37 @@ export async function POST(req: NextRequest) {
     const order = await prisma.$transaction(async (tx) => {
       for (const item of items) {
         if (item.variantId) {
-          // Перевіряємо варіант
           const variant = await tx.productVariant.findUnique({
             where: { id: item.variantId },
           });
           if (!variant) throw new Error(`Варіант не знайдено`);
-          if (variant.stock < item.quantity) {
+          if (variant.stock < item.quantity)
             throw new Error(`Недостатньо варіанту на складі`);
-          }
-
-          // Перевіряємо суммарний stock продукту
           const product = await tx.product.findUnique({
             where: { id: item.productId },
           });
           if (!product) throw new Error(`Продукт не знайдено`);
-          if (product.stock < item.quantity) {
-            throw new Error(`Недостатньо товару "${product.name}" на складі`);
-          }
-
-          // Списуємо з варіанту
           await tx.productVariant.update({
             where: { id: item.variantId },
             data: { stock: { decrement: item.quantity } },
           });
-
-          // Списуємо із суммарного stock продукту
           await tx.product.update({
             where: { id: item.productId },
             data: { stock: { decrement: item.quantity } },
           });
         } else {
-          // Без варіанту — списуємо тільки з продукту
           const product = await tx.product.findUnique({
             where: { id: item.productId },
           });
           if (!product) throw new Error(`Продукт не знайдено`);
-          if (product.stock < item.quantity) {
+          if (product.stock < item.quantity)
             throw new Error(`Недостатньо товару "${product.name}" на складі`);
-          }
           await tx.product.update({
             where: { id: item.productId },
             data: { stock: { decrement: item.quantity } },
           });
         }
       }
-
       return tx.order.create({
         data: {
           customerId,
@@ -104,7 +91,7 @@ export async function POST(req: NextRequest) {
         include: {
           customer: true,
           manager: { select: { id: true, name: true } },
-          items: { include: { product: true } },
+          items: { include: { product: true, variant: true } },
         },
       });
     });
