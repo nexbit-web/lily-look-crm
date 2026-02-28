@@ -454,16 +454,14 @@ export default function ExpensesPage() {
             )}
           </div>
 
-          <RoleGate allowed={["OWNER", "ADMIN", "MANAGER"]}>
-            <Button
-              size="sm"
-              className="cursor-pointer"
-              onClick={() => router.push("/dashboard/expenses/add")}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              <span className="hidden lg:inline">Додати витрату</span>
-            </Button>
-          </RoleGate>
+          <Button
+            size="sm"
+            className="cursor-pointer"
+            onClick={() => router.push("/dashboard/expenses/add")}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            <span className="hidden lg:inline">Додати витрату</span>
+          </Button>
         </div>
       </div>
 
