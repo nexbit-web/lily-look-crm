@@ -48,6 +48,7 @@ model User {
   accounts  Account[]
   orders    Order[]        // ← обратная связь для Order.manager
   logs      ActivityLog[]  // ← обратная связь для ActivityLog.user
+  expenses  Expense[]
 
   @@map("user")
 }
@@ -213,11 +214,30 @@ model ActivityLog {
   createdAt DateTime @default(now())
 }
 
+enum ExpenseCategory {
+  ADVERTISING
+  PHOTOGRAPHER
+  DELIVERY
+  SALARY
+  DISCOUNT_LOSS
+  PURCHASE
+  BANK_FEE
+  OTHER
+}
+
 model Expense {
-  id     String @id @default(cuid())
-  title  String
-  amount Float
+  id          String          @id @default(cuid())
+  category    ExpenseCategory
+  amount      Decimal         @db.Decimal(10, 2)
+  description String?
+  date        DateTime
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Restrict)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([date])
+  @@index([category])
 }

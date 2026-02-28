@@ -13,6 +13,8 @@ import {
   Send,
   Command,
   LucideIcon,
+  TrendingDown,
+  BarChart2,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -94,6 +96,18 @@ const NAV_ITEMS: NavItem[] = [
     url: "/dashboard/admin",
     icon: ShieldUser,
     roles: ["OWNER", "ADMIN"],
+  },
+  {
+    title: "Витрати",
+    url: "/dashboard/expenses",
+    icon: TrendingDown,
+    roles: ["OWNER", "ADMIN", "MANAGER"],
+  },
+  {
+    title: "Аналітика",
+    url: "/dashboard/analytics",
+    icon: BarChart2,
+    roles: ["OWNER", "ADMIN", "MANAGER"],
   },
 ];
 

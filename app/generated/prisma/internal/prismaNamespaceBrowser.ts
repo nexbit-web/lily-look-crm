@@ -257,8 +257,11 @@ export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[key
 
 export const ExpenseScalarFieldEnum = {
   id: 'id',
-  title: 'title',
+  category: 'category',
   amount: 'amount',
+  description: 'description',
+  date: 'date',
+  createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
