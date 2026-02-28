@@ -381,7 +381,7 @@ export default function ExpensesPage() {
   return (
     <div className="flex flex-col gap-4 p-4">
       {/* ── Метрики ── */}
-      <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-2 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:grid-cols-3">
+      <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:grid-cols-3">
         <MetricCard
           label="Цей місяць"
           value={`${currMonth.toFixed(0)} ₴`}
