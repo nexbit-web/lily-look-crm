@@ -9,6 +9,12 @@ import {
   Plus,
   Search,
   X,
+  Sparkles,
+  CheckCircle,
+  Truck,
+  CircleCheck,
+  CircleX,
+  RotateCcw,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -103,6 +109,14 @@ const STATUS_COLORS: Record<StatusKey, string> = {
     "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
 };
 
+const STATUS_ICONS: Record<StatusKey, React.ReactNode> = {
+  NEW: <Sparkles size={12} className="shrink-0" />,
+  CONFIRMED: <CheckCircle size={12} className="shrink-0" />,
+  SHIPPED: <Truck size={12} className="shrink-0" />,
+  COMPLETED: <CircleCheck size={12} className="shrink-0" />,
+  CANCELED: <CircleX size={12} className="shrink-0" />,
+  RETURNED: <RotateCcw size={12} className="shrink-0" />,
+};
 // ─── OrdersTable ──────────────────────────────────────────────────────────────
 
 export function OrdersTable() {
@@ -262,8 +276,9 @@ export function OrdersTable() {
 
                     <TableCell>
                       <Badge
-                        className={STATUS_COLORS[order.status as StatusKey]}
+                        className={`inline-flex items-center gap-1 ${STATUS_COLORS[order.status as StatusKey]}`}
                       >
+                        {STATUS_ICONS[order.status as StatusKey]}
                         {STATUS_LABELS[order.status as StatusKey]}
                       </Badge>
                     </TableCell>

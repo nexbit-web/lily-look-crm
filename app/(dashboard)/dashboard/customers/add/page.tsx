@@ -1,18 +1,37 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, User, CheckCircle2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { ClearableInput } from "@/components/Clearable-input";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Form = { name: string; phone: string; email: string; address: string };
 
 const EMPTY: Form = { name: "", phone: "", email: "", address: "" };
+
+// форматування номеру
+function formatPhone(raw: string): string {
+  // Оставляем только цифры
+  const digits = raw.replace(/\D/g, "");
+
+  // Убираем ведущую 38 если есть
+  const local = digits.startsWith("38") ? digits.slice(2) : digits;
+
+  // Форматируем: +38 (0XX) XXX XX XX
+  const d = local.slice(0, 10);
+  if (d.length === 0) return "";
+  if (d.length <= 3) return `+38 (${d}`;
+  if (d.length <= 6) return `+38 (${d.slice(0, 3)}) ${d.slice(3)}`;
+  if (d.length <= 8)
+    return `+38 (${d.slice(0, 3)}) ${d.slice(3, 6)} ${d.slice(6)}`;
+  return `+38 (${d.slice(0, 3)}) ${d.slice(3, 6)} ${d.slice(6, 8)} ${d.slice(8, 10)}`;
+}
 
 // ─── Field wrapper ────────────────────────────────────────────────────────────
 
@@ -94,6 +113,10 @@ export default function AddCustomerPage() {
     setForm((p) => ({ ...p, [name]: value }));
   }, []);
 
+  const handlePhone = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((p) => ({ ...p, phone: formatPhone(e.target.value) }));
+  }, []);
+
   const step1Done = !!form.name.trim();
   const step2Done = !!(form.phone.trim() || form.email.trim());
 
@@ -164,14 +187,23 @@ export default function AddCustomerPage() {
           done={step1Done}
         >
           <Field label="Повне ім'я" required>
-            <Input
+            <ClearableInput
+              name="name"
+              placeholder="Наприклад: Олена Коваль"
+              value={form.name}
+              onChange={handleChange}
+              onClear={() => setForm((p) => ({ ...p, name: "" }))}
+              className="rounded-xl"
+              autoFocus
+            />
+            {/* <Input
               name="name"
               placeholder="Наприклад: Олена Коваль"
               value={form.name}
               onChange={handleChange}
               className="rounded-xl"
               autoFocus
-            />
+            /> */}
           </Field>
         </Section>
 
@@ -200,21 +232,24 @@ export default function AddCustomerPage() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Телефон">
-              <Input
+              <ClearableInput
                 name="phone"
-                placeholder="+380 XX XXX XX XX"
+                placeholder="+38 (0XX) XXX XX XX"
                 value={form.phone}
-                onChange={handleChange}
+                onChange={handlePhone}
+                onClear={() => setForm((p) => ({ ...p, phone: "" }))}
                 type="tel"
                 className="rounded-xl"
+                maxLength={19}
               />
             </Field>
             <Field label="Email">
-              <Input
+              <ClearableInput
                 name="email"
                 placeholder="email@example.com"
                 value={form.email}
                 onChange={handleChange}
+                onClear={() => setForm((p) => ({ ...p, email: "" }))}
                 type="email"
                 className="rounded-xl"
               />
@@ -247,12 +282,13 @@ export default function AddCustomerPage() {
             Необов'язково — можна заповнити пізніше
           </p>
           <Field label="Повна адреса">
-            <Input
+            <ClearableInput
               name="address"
               placeholder="м. Київ, Відділення №1"
               value={form.address}
               onChange={handleChange}
               className="rounded-xl"
+              onClear={() => setForm((p) => ({ ...p, address: "" }))}
             />
           </Field>
         </Section>

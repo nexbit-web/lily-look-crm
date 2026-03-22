@@ -101,7 +101,7 @@ const EXPENSE_LABELS: Record<string, string> = {
   SALARY: "Зарплата",
   DISCOUNT_LOSS: "Знижки",
   PURCHASE: "Закупка",
-  BANK_FEE: "Банк",
+  BANK_FEE: "% менеджера",
   OTHER: "Інше",
 };
 

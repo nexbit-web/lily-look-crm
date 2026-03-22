@@ -47,7 +47,7 @@ const CATEGORY_LABELS: Record<ExpenseCategory, string> = {
   SALARY: "Зарплата",
   DISCOUNT_LOSS: "Товар зі знижкою",
   PURCHASE: "Закупка товарів",
-  BANK_FEE: "Відсоток банку",
+  BANK_FEE: "% менеджера",
   OTHER: "Інше",
 };
 

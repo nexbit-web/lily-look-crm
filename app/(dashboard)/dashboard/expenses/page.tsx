@@ -23,6 +23,14 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Trash,
+  Megaphone,
+  Camera,
+  Package,
+  Wallet,
+  Tag,
+  ShoppingCart,
+  Percent,
+  MoreHorizontal,
 } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { useRouter } from "next/navigation";
@@ -92,7 +100,7 @@ const CATEGORY_LABELS: Record<ExpenseCategory, string> = {
   SALARY: "Зарплата",
   DISCOUNT_LOSS: "Товар зі знижкою",
   PURCHASE: "Закупка товарів",
-  BANK_FEE: "Відсоток банку",
+  BANK_FEE: "Менеджера",
   OTHER: "Інше",
 };
 
@@ -110,6 +118,16 @@ const CATEGORY_COLORS: Record<ExpenseCategory, string> = {
   OTHER: "bg-gray-100 text-gray-600 dark:bg-zinc-800 dark:text-zinc-300",
 };
 
+const CATEGORY_ICONS: Record<ExpenseCategory, React.ReactNode> = {
+  ADVERTISING: <Megaphone size={12} className="shrink-0" />,
+  PHOTOGRAPHER: <Camera size={12} className="shrink-0" />,
+  DELIVERY: <Package size={12} className="shrink-0" />,
+  SALARY: <Wallet size={12} className="shrink-0" />,
+  DISCOUNT_LOSS: <Tag size={12} className="shrink-0" />,
+  PURCHASE: <ShoppingCart size={12} className="shrink-0" />,
+  BANK_FEE: <Percent size={12} className="shrink-0" />,
+  OTHER: <MoreHorizontal size={12} className="shrink-0" />,
+};
 // ─── MetricCard ───────────────────────────────────────────────────────────────
 
 function MetricCard({
@@ -501,7 +519,10 @@ export default function ExpensesPage() {
                     {format(parseISO(expense.date), "dd.MM.yyyy")}
                   </TableCell>
                   <TableCell>
-                    <Badge className={CATEGORY_COLORS[expense.category]}>
+                    <Badge
+                      className={`inline-flex items-center gap-1 ${CATEGORY_COLORS[expense.category]}`}
+                    >
+                      {CATEGORY_ICONS[expense.category]}
                       {CATEGORY_LABELS[expense.category]}
                     </Badge>
                   </TableCell>
