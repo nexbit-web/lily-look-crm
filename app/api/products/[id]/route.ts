@@ -33,25 +33,38 @@ export async function PUT(
       data: {
         name: data.name,
         price: parseFloat(data.price),
+        costPrice: parseFloat(data.costPrice) || 0,
         sku: data.sku,
         stock: parseInt(data.stock),
         categoryId: data.categoryId,
+        description: data.description || null,
+        imageUrl: data.imageUrl || null,
+        isActive: data.isActive ?? true,
       },
     });
 
     if (data.variants?.length) {
-      for (const v of data.variants) {
+      for (const v of data.variants as {
+        id?: string;
+        size: string;
+        color: string;
+        stock: number;
+      }[]) {
         if (v.id) {
           await prisma.productVariant.update({
             where: { id: v.id },
-            data: { size: v.size, color: v.color, stock: parseInt(v.stock) },
+            data: {
+              size: v.size,
+              color: v.color,
+              stock: parseInt(String(v.stock)),
+            },
           });
         } else {
           await prisma.productVariant.create({
             data: {
               size: v.size,
               color: v.color,
-              stock: parseInt(v.stock),
+              stock: parseInt(String(v.stock)),
               productId: id,
             },
           });
@@ -65,6 +78,7 @@ export async function PUT(
     });
     return NextResponse.json(updated);
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { error: "Не вдалося оновити продукт" },
       { status: 500 },

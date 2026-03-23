@@ -58,6 +58,7 @@ export const ModelName = {
   LoginAttempt: 'LoginAttempt',
   Customer: 'Customer',
   Category: 'Category',
+  Discount: 'Discount',
   Product: 'Product',
   ProductVariant: 'ProductVariant',
   Order: 'Order',
@@ -180,6 +181,23 @@ export const CategoryScalarFieldEnum = {
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
 
 
+export const DiscountScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  value: 'value',
+  target: 'target',
+  categoryId: 'categoryId',
+  productId: 'productId',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  isActive: 'isActive',
+  createdAt: 'createdAt'
+} as const
+
+export type DiscountScalarFieldEnum = (typeof DiscountScalarFieldEnum)[keyof typeof DiscountScalarFieldEnum]
+
+
 export const ProductScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -192,7 +210,8 @@ export const ProductScalarFieldEnum = {
   categoryId: 'categoryId',
   deletedAt: 'deletedAt',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  costPrice: 'costPrice'
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
@@ -228,7 +247,8 @@ export const OrderItemScalarFieldEnum = {
   price: 'price',
   orderId: 'orderId',
   productId: 'productId',
-  variantId: 'variantId'
+  variantId: 'variantId',
+  costPrice: 'costPrice'
 } as const
 
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]

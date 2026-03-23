@@ -44,6 +44,7 @@ type Product = {
   id: string;
   name: string;
   price: number;
+  costPrice: number;
   stock: number;
   sku: string;
   category: { id: string; name: string; slug: string };
@@ -169,6 +170,12 @@ export default function ProductsTable() {
               <TableHead>Назва</TableHead>
               <TableHead>Артикул</TableHead>
               <TableHead>Ціна</TableHead>
+              <TableHead>
+                <RoleGate allowed={["OWNER", "ADMIN", "MANAGER"]}>
+                  Маржа
+                </RoleGate>
+              </TableHead>
+
               <TableHead>На складі</TableHead>
               <TableHead>Категорія</TableHead>
               <TableHead>Дії</TableHead>
@@ -214,6 +221,42 @@ export default function ProductsTable() {
                       {product.price} ₴
                     </TableCell>
 
+                    {/* ← ДОБАВИТЬ */}
+                    <TableCell>
+                      <RoleGate allowed={["OWNER", "ADMIN", "MANAGER"]}>
+                        {product.costPrice > 0 ? (
+                          (() => {
+                            const profit = product.price - product.costPrice;
+                            const margin = (
+                              (profit / product.price) *
+                              100
+                            ).toFixed(0);
+                            return (
+                              <div className="flex flex-col gap-0.5">
+                                <span
+                                  className={`text-xs font-semibold tabular-nums ${
+                                    profit >= 0
+                                      ? "text-green-600 dark:text-green-400"
+                                      : "text-red-500"
+                                  }`}
+                                >
+                                  {profit >= 0 ? "+" : ""}
+                                  {profit.toFixed(0)} ₴
+                                </span>
+                                <span className="text-xs text-gray-400 tabular-nums">
+                                  {margin}%
+                                </span>
+                              </div>
+                            );
+                          })()
+                        ) : (
+                          <span className="text-xs text-gray-300 dark:text-zinc-600">
+                            —
+                          </span>
+                        )}
+                      </RoleGate>
+                    </TableCell>
+
                     {/* На складі — реальний залишок з кольором */}
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -240,15 +283,15 @@ export default function ProductsTable() {
                       {product.category?.name ?? "—"}
                     </TableCell>
 
-                    <RoleGate allowed={["MANAGER", "ADMIN"]}>
-                      <TableCell>
+                    <TableCell>
+                      <RoleGate allowed={["MANAGER", "ADMIN"]}>
                         <ProductActions
                           productId={product.id}
                           onDelete={handleDelete}
                           onEdit={handleEdit}
                         />
-                      </TableCell>
-                    </RoleGate>
+                      </RoleGate>
+                    </TableCell>
                   </TableRow>
                 );
               })

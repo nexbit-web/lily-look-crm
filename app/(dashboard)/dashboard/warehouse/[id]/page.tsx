@@ -36,6 +36,7 @@ type Product = {
   variants: Variant[];
   createdAt: string;
   updatedAt: string;
+  costPrice: number;
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -84,7 +85,11 @@ export default function ProductViewPage() {
     const availableVariants = product.variants.filter(
       (v) => v.stock > 0,
     ).length;
-    return { hasVariants, realStock, availableVariants };
+    const profit =
+      product.costPrice > 0 ? product.price - product.costPrice : null;
+    const margin =
+      profit !== null ? ((profit / product.price) * 100).toFixed(0) : null;
+    return { hasVariants, realStock, availableVariants, profit, margin };
   }, [product]);
 
   // ── Loading / Empty ──
@@ -198,6 +203,41 @@ export default function ProductViewPage() {
           )}
         </div>
 
+        {/* ← Маржа */}
+        <RoleGate allowed={["OWNER", "ADMIN", "MANAGER"]}>
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-100 dark:border-zinc-800 grid grid-cols-3 divide-x divide-gray-100 dark:divide-zinc-800">
+            <Metric
+              label="Собівартість"
+              value={product.costPrice > 0 ? `${product.costPrice} ₴` : "—"}
+            />
+            <Metric
+              label="Прибуток"
+              value={
+                stats.profit !== null
+                  ? `${stats.profit > 0 ? "+" : ""}${stats.profit.toFixed(0)} ₴`
+                  : "—"
+              }
+              accent={
+                stats.profit !== null
+                  ? stats.profit >= 0
+                    ? "green"
+                    : "red"
+                  : "default"
+              }
+            />
+            <Metric
+              label="Маржа"
+              value={stats.margin !== null ? `${stats.margin}%` : "—"}
+              accent={
+                stats.margin !== null
+                  ? Number(stats.margin) >= 0
+                    ? "green"
+                    : "red"
+                  : "default"
+              }
+            />
+          </div>
+        </RoleGate>
         {/* ── Деталі ── */}
         <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-100 dark:border-zinc-800 overflow-hidden">
           <SectionHeader title="Деталі" />

@@ -49,18 +49,21 @@ export async function POST(req: NextRequest) {
         name: data.name,
         description: data.description || null,
         price: data.price,
+        costPrice: data.costPrice ?? 0,  
         sku: data.sku,
-        stock: totalStock, // ← завжди актуальне сумарне
+        stock: totalStock,
         imageUrl: data.imageUrl || null,
         isActive: data.isActive ?? true,
         categoryId: data.categoryId,
         variants: hasVariants
           ? {
-              create: data.variants.map((v: any) => ({
-                size: v.size,
-                color: v.color,
-                stock: parseInt(v.stock) || 0,
-              })),
+              create: data.variants.map(
+                (v: { size: string; color: string; stock: string }) => ({
+                  size: v.size,
+                  color: v.color,
+                  stock: parseInt(v.stock) || 0,
+                }),
+              ),
             }
           : undefined,
       },

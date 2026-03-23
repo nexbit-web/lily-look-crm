@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { RoleGate } from "@/components/Role-gate";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -42,6 +43,7 @@ type ProductForm = {
   isActive: boolean;
   categoryId: string;
   variants: VariantForm[];
+  costPrice: string;
 };
 
 const EMPTY: ProductForm = {
@@ -54,6 +56,7 @@ const EMPTY: ProductForm = {
   isActive: true,
   categoryId: "",
   variants: [],
+  costPrice: "",
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -233,6 +236,7 @@ export default function AddProductPage() {
           color: v.color.trim(),
           stock: parseInt(v.stock),
         })),
+        costPrice: parseFloat(product.costPrice) || 0,
       };
 
       const res = await fetch("/api/products", {
@@ -376,7 +380,20 @@ export default function AddProductPage() {
                 className="rounded-xl"
               />
             </Field>
-
+            <RoleGate allowed={["OWNER", "ADMIN", "MANAGER"]}>
+              <Field label="Закупочна ціна (₴)">
+                <Input
+                  name="costPrice"
+                  placeholder="0.00"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={product.costPrice}
+                  onChange={handleChange}
+                  className="rounded-xl"
+                />
+              </Field>
+            </RoleGate>
             <Field label="Кількість на складі *">
               <Input
                 name="stock"

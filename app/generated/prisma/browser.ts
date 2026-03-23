@@ -53,6 +53,11 @@ export type Customer = Prisma.CustomerModel
  */
 export type Category = Prisma.CategoryModel
 /**
+ * Model Discount
+ * 
+ */
+export type Discount = Prisma.DiscountModel
+/**
  * Model Product
  * 
  */

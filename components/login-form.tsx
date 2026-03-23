@@ -111,7 +111,7 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
         <Field>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading && <Spinner className="h-5 w-5" />}
-            {loading ? "Вхід..." : "Увійти"}
+            {loading ? "" : "Увійти"}
           </Button>
         </Field>
       </FieldGroup>

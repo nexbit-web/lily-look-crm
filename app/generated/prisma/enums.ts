@@ -32,6 +32,23 @@ export const OrderStatus = {
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 
 
+export const DiscountType = {
+  PERCENTAGE: 'PERCENTAGE',
+  FIXED: 'FIXED'
+} as const
+
+export type DiscountType = (typeof DiscountType)[keyof typeof DiscountType]
+
+
+export const DiscountTarget = {
+  ALL: 'ALL',
+  CATEGORY: 'CATEGORY',
+  PRODUCT: 'PRODUCT'
+} as const
+
+export type DiscountTarget = (typeof DiscountTarget)[keyof typeof DiscountTarget]
+
+
 export const ExpenseCategory = {
   ADVERTISING: 'ADVERTISING',
   PHOTOGRAPHER: 'PHOTOGRAPHER',
