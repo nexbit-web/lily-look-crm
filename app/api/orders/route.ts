@@ -20,6 +20,13 @@ export async function GET() {
   return NextResponse.json(orders);
 }
 
+type OrderItemInput = {
+  productId: string;
+  variantId?: string | null;
+  quantity: number;
+  price: number;
+};
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -35,13 +42,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const total = items.reduce(
-      (sum: number, i: any) => sum + i.price * i.quantity,
+    const total = (items as OrderItemInput[]).reduce(
+      (sum, i) => sum + i.price * i.quantity,
       0,
     );
 
     const order = await prisma.$transaction(async (tx) => {
-      for (const item of items) {
+      // Массив для хранения costPrice по каждому item
+      const costPrices: number[] = [];
+
+      for (const item of items as OrderItemInput[]) {
         if (item.variantId) {
           const variant = await tx.productVariant.findUnique({
             where: { id: item.variantId },
@@ -49,10 +59,14 @@ export async function POST(req: NextRequest) {
           if (!variant) throw new Error(`Варіант не знайдено`);
           if (variant.stock < item.quantity)
             throw new Error(`Недостатньо варіанту на складі`);
+
           const product = await tx.product.findUnique({
             where: { id: item.productId },
           });
           if (!product) throw new Error(`Продукт не знайдено`);
+
+          costPrices.push(product.costPrice); // ← snapshot
+
           await tx.productVariant.update({
             where: { id: item.variantId },
             data: { stock: { decrement: item.quantity } },
@@ -68,23 +82,28 @@ export async function POST(req: NextRequest) {
           if (!product) throw new Error(`Продукт не знайдено`);
           if (product.stock < item.quantity)
             throw new Error(`Недостатньо товару "${product.name}" на складі`);
+
+          costPrices.push(product.costPrice); // ← snapshot
+
           await tx.product.update({
             where: { id: item.productId },
             data: { stock: { decrement: item.quantity } },
           });
         }
       }
+
       return tx.order.create({
         data: {
           customerId,
           managerId: session.user.id,
           total,
           items: {
-            create: items.map((i: any) => ({
+            create: (items as OrderItemInput[]).map((i, index) => ({
               productId: i.productId,
               variantId: i.variantId ?? null,
               quantity: i.quantity,
               price: i.price,
+              costPrice: costPrices[index] ?? 0, // ← snapshot
             })),
           },
         },
