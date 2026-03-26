@@ -60,7 +60,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                     active
                       ? {
                           backgroundColor: "var(--primary)",
-                          color: "var(--background)",
+                          color: "var(--sidebar-primary-foreground)",
                         }
                       : undefined
                   }
