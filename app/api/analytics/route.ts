@@ -146,8 +146,6 @@ export async function GET(req: NextRequest) {
     const netProfit = revenue - totalExpenses;
     const prevNetProfit = prevRevenue - prevTotalExp;
 
-    
-
     // Відсоткові зміни
     const pct = (curr: number, prev: number) =>
       prev === 0 ? null : Number((((curr - prev) / prev) * 100).toFixed(1));
