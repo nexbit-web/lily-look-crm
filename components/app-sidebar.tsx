@@ -10,11 +10,11 @@ import {
   UserRoundPlus,
   ShieldUser,
   LifeBuoy,
-  Send,
   Command,
   LucideIcon,
   TrendingDown,
   BarChart2,
+  Triangle,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -111,9 +111,19 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
-const NAV_SECONDARY = [
-  { title: "Підтримка", url: "#", icon: LifeBuoy },
-  { title: "Telegram група", url: "#", icon: Send },
+const NAV_SECONDARY: NavItem[] = [
+  {
+    title: "Telegram група",
+    url: "#",
+    icon: LifeBuoy,
+    roles: ["OWNER", "MANAGER", "ADMIN", "EMPLOYEE", "INTERN"],
+  },
+  {
+    title: "Воронка",
+    url: "https://nexbit-web.github.io/funnel/",
+    icon: Triangle,
+    roles: ["OWNER", "ADMIN", "MANAGER"],
+  },
 ];
 
 // ─── Компонент ────────────────────────────────────────────────────────────────
@@ -123,8 +133,11 @@ export function AppSidebar({
   ...props
 }: { user: AppSidebarUser } & React.ComponentProps<typeof Sidebar>) {
   // Один useMemo, один прохід масиву — швидше не буває
-  const visibleItems = React.useMemo(
-    () => NAV_ITEMS.filter((item) => item.roles.includes(user.role)),
+  const [visibleItems, visibleSecondary] = React.useMemo(
+    () => [
+      NAV_ITEMS.filter((item) => item.roles.includes(user.role)),
+      NAV_SECONDARY.filter((item) => item.roles.includes(user.role)),
+    ],
     [user.role],
   );
 
@@ -150,7 +163,7 @@ export function AppSidebar({
       {/* ── Навігація ── */}
       <SidebarContent>
         <NavMain items={visibleItems} />
-        <NavSecondary items={NAV_SECONDARY} className="mt-auto" />
+        <NavSecondary items={visibleSecondary} className="mt-auto" />
       </SidebarContent>
 
       {/* ── Користувач ── */}
